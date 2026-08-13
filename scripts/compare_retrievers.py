@@ -5,7 +5,11 @@ from rag_autopsy.chunking import FixedSizeChunker
 from rag_autopsy.config import ChunkingConfig
 from rag_autopsy.diagnostics import diagnose_retrieval
 from rag_autopsy.evaluation import recall_at_k, reciprocal_rank
-from rag_autopsy.retrieval import BM25Retriever, SemanticRetriever
+from rag_autopsy.retrieval import (
+    BM25Retriever,
+    HybridRetriever,
+    SemanticRetriever,
+)
 
 
 def load_chunks():
@@ -112,6 +116,9 @@ def main():
 
     print("Loading semantic model...")
     semantic = SemanticRetriever(chunks)
+    
+    print("Loading hybrid retriever...")
+    hybrid = HybridRetriever(chunks)
 
     bm25_metrics = evaluate_retriever(
         "BM25",
@@ -123,6 +130,12 @@ def main():
         "SEMANTIC",
         semantic,
         questions,
+    )
+
+    hybrid_metrics = evaluate_retriever(
+    "HYBRID RRF",
+    hybrid,
+    questions,
     )
 
     print("\n" + "=" * 80)
@@ -150,6 +163,13 @@ def main():
         f"{semantic_metrics['recall@1']:<15.1%}"
         f"{semantic_metrics['recall@3']:<15.1%}"
         f"{semantic_metrics['mrr']:<15.3f}"
+    )
+   
+    print(
+    f"{'Hybrid RRF':<15}"
+    f"{hybrid_metrics['recall@1']:<15.1%}"
+    f"{hybrid_metrics['recall@3']:<15.1%}"
+    f"{hybrid_metrics['mrr']:<15.3f}"
     )
 
 
