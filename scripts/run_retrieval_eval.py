@@ -1,8 +1,10 @@
 import json
+from collections import Counter
 from pathlib import Path
 
 from rag_autopsy.chunking import FixedSizeChunker
 from rag_autopsy.config import ChunkingConfig
+from rag_autopsy.diagnostics import diagnose_retrieval
 from rag_autopsy.evaluation import recall_at_k, reciprocal_rank
 from rag_autopsy.retrieval import BM25Retriever
 
@@ -46,8 +48,9 @@ def main():
     recall_1_scores = []
     recall_3_scores = []
     reciprocal_rank_scores = []
+    diagnoses = []
 
-    print("\nBM25 CHUNK-LEVEL RETRIEVAL EVALUATION")
+    print("\nRAG AUTOPSY — BM25 RETRIEVAL EVALUATION")
     print("=" * 80)
 
     for item in questions:
@@ -76,23 +79,22 @@ def main():
             relevant_chunk_ids=relevant_chunk_ids,
         )
 
+        autopsy = diagnose_retrieval(
+            results,
+            relevant_chunk_ids,
+        )
+
         recall_1_scores.append(recall_1)
         recall_3_scores.append(recall_3)
         reciprocal_rank_scores.append(rr)
-
-        top_chunk = (
-            results[0].chunk.chunk_id
-            if results
-            else "NO RESULT"
-        )
+        diagnoses.append(autopsy.diagnosis.value)
 
         print(f"\n{item['question_id']}")
         print(f"Question: {question}")
-        print(f"Relevant chunks: {', '.join(relevant_chunk_ids)}")
-        print(f"Top retrieved: {top_chunk}")
-        print(f"Recall@1: {recall_1:.0f}")
-        print(f"Recall@3: {recall_3:.0f}")
-        print(f"Reciprocal Rank: {rr:.3f}")
+        print(
+            f"Relevant chunks: "
+            f"{', '.join(relevant_chunk_ids)}"
+        )
 
         print("\nTop results:")
 
@@ -112,6 +114,17 @@ def main():
                 f"(score={result.score:.4f})"
             )
 
+        print("\nAUTOPSY")
+        print("-" * 40)
+        print(f"Diagnosis: {autopsy.diagnosis.value}")
+        print(f"Relevant rank: {autopsy.relevant_rank}")
+        print(f"Explanation: {autopsy.explanation}")
+
+        print("\nMetrics")
+        print(f"Recall@1: {recall_1:.0f}")
+        print(f"Recall@3: {recall_3:.0f}")
+        print(f"Reciprocal Rank: {rr:.3f}")
+
     average_recall_1 = (
         sum(recall_1_scores) / len(recall_1_scores)
     )
@@ -125,6 +138,8 @@ def main():
         / len(reciprocal_rank_scores)
     )
 
+    diagnosis_counts = Counter(diagnoses)
+
     print("\n" + "=" * 80)
     print("SUMMARY")
     print("=" * 80)
@@ -133,6 +148,11 @@ def main():
     print(f"Recall@1: {average_recall_1:.1%}")
     print(f"Recall@3: {average_recall_3:.1%}")
     print(f"MRR: {mean_reciprocal_rank:.3f}")
+
+    print("\nAutopsy Results:")
+
+    for diagnosis, count in sorted(diagnosis_counts.items()):
+        print(f"  {diagnosis}: {count}")
 
 
 if __name__ == "__main__":
