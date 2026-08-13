@@ -66,3 +66,98 @@ def diagnose_retrieval(
             "in the retrieved results."
         ),
     )
+
+class StageComparisonType(str, Enum):
+    RERANKER_IMPROVEMENT = "RERANKER_IMPROVEMENT"
+    RERANKER_REGRESSION = "RERANKER_REGRESSION"
+    NO_CHANGE = "NO_CHANGE"
+
+
+@dataclass(frozen=True)
+class StageComparisonResult:
+    diagnosis: StageComparisonType
+    before_rank: int | None
+    after_rank: int | None
+    explanation: str
+
+
+def compare_reranking_stages(
+    before_results: list[SearchResult],
+    after_results: list[SearchResult],
+    relevant_chunk_ids: list[str],
+) -> StageComparisonResult:
+    """
+    Compare retrieval quality before and after reranking.
+
+    Lower rank is better:
+        rank 1 > rank 2 > rank 3 > missing
+    """
+
+    relevant = set(relevant_chunk_ids)
+
+    def find_rank(
+        results: list[SearchResult],
+    ) -> int | None:
+        for rank, result in enumerate(
+            results,
+            start=1,
+        ):
+            if result.chunk.chunk_id in relevant:
+                return rank
+
+        return None
+
+    before_rank = find_rank(before_results)
+    after_rank = find_rank(after_results)
+
+    # Missing evidence is treated as worse
+    # than any retrieved position.
+    before_score = (
+        before_rank
+        if before_rank is not None
+        else float("inf")
+    )
+
+    after_score = (
+        after_rank
+        if after_rank is not None
+        else float("inf")
+    )
+
+    if after_score < before_score:
+        return StageComparisonResult(
+            diagnosis=(
+                StageComparisonType.RERANKER_IMPROVEMENT
+            ),
+            before_rank=before_rank,
+            after_rank=after_rank,
+            explanation=(
+                "The reranker improved the position of "
+                "the relevant evidence "
+                f"from {before_rank} to {after_rank}."
+            ),
+        )
+
+    if after_score > before_score:
+        return StageComparisonResult(
+            diagnosis=(
+                StageComparisonType.RERANKER_REGRESSION
+            ),
+            before_rank=before_rank,
+            after_rank=after_rank,
+            explanation=(
+                "The reranker degraded the position of "
+                "the relevant evidence "
+                f"from {before_rank} to {after_rank}."
+            ),
+        )
+
+    return StageComparisonResult(
+        diagnosis=StageComparisonType.NO_CHANGE,
+        before_rank=before_rank,
+        after_rank=after_rank,
+        explanation=(
+            "The reranker did not change the position "
+            "of the relevant evidence."
+        ),
+    )
