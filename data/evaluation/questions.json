@@ -2,31 +2,45 @@
   {
     "question_id": "q001",
     "question": "Why did Arcadia Components operating margin decline?",
-    "relevant_document": "financial_report"
+    "relevant_chunk_ids": [
+      "financial_report::chunk-0000"
+    ]
   },
   {
     "question_id": "q002",
     "question": "What was more strongly associated with order cancellations?",
-    "relevant_document": "retail_ops"
+    "relevant_chunk_ids": [
+      "retail_ops::chunk-0002"
+    ]
   },
   {
     "question_id": "q003",
     "question": "What caused the analytics jobs to miss their service-level targets?",
-    "relevant_document": "platform_incident"
+    "relevant_chunk_ids": [
+      "platform_incident::chunk-0000"
+    ]
   },
   {
     "question_id": "q004",
     "question": "What actions did Arcadia plan to take to improve margins?",
-    "relevant_document": "financial_report"
+    "relevant_chunk_ids": [
+      "financial_report::chunk-0001",
+      "financial_report::chunk-0002"
+    ]
   },
   {
     "question_id": "q005",
     "question": "How did engineers mitigate the data platform incident?",
-    "relevant_document": "platform_incident"
+    "relevant_chunk_ids": [
+      "platform_incident::chunk-0001"
+    ]
   },
   {
     "question_id": "q006",
     "question": "What did Northstar Retail change after fulfillment delays increased?",
-    "relevant_document": "retail_ops"
+    "relevant_chunk_ids": [
+      "retail_ops::chunk-0000",
+      "retail_ops::chunk-0001"
+    ]
   }
 ]
