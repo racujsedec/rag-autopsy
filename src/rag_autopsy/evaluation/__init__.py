@@ -1,1 +1,3 @@
-"""Reserved for a later RAG Autopsy phase."""
+from .retrieval_metrics import recall_at_k
+
+__all__ = ["recall_at_k"]
