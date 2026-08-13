@@ -1,4 +1,5 @@
 import json
+from collections import Counter
 from pathlib import Path
 
 from rag_autopsy.chunking import (
@@ -6,7 +7,10 @@ from rag_autopsy.chunking import (
     ParagraphChunker,
 )
 from rag_autopsy.config import ChunkingConfig
-from rag_autopsy.diagnostics import diagnose_retrieval
+from rag_autopsy.diagnostics import (
+    diagnose_chunking,
+    diagnose_retrieval,
+)
 from rag_autopsy.evaluation import (
     recall_at_k,
     reciprocal_rank,
@@ -59,7 +63,7 @@ def evaluate_strategy(
     rr_scores = []
     coverage_scores = []
 
-    boundary_risks = 0
+    chunking_diagnoses = Counter()
 
     print("\n" + "=" * 80)
     print(name)
@@ -100,9 +104,14 @@ def evaluate_strategy(
             relevant_chunk_ids,
         )
 
-        diagnosis = diagnose_retrieval(
+        retrieval_diagnosis = diagnose_retrieval(
             results,
             relevant_chunk_ids,
+        )
+
+        chunking_diagnosis = diagnose_chunking(
+            ground_truth,
+            results,
         )
 
         recall_1_scores.append(recall_1)
@@ -113,19 +122,14 @@ def evaluate_strategy(
             ground_truth.max_coverage
         )
 
-        if not ground_truth.complete_evidence_preserved:
-            boundary_risks += 1
+        chunking_diagnoses[
+            chunking_diagnosis.diagnosis.value
+        ] += 1
 
         top_chunk = (
             results[0].chunk.chunk_id
             if results
             else "NO RESULT"
-        )
-
-        evidence_status = (
-            "COMPLETE"
-            if ground_truth.complete_evidence_preserved
-            else "FRAGMENTED"
         )
 
         print(f"\n{item['question_id']}")
@@ -137,11 +141,6 @@ def evaluate_strategy(
         )
 
         print(
-            f"Evidence status: "
-            f"{evidence_status}"
-        )
-
-        print(
             "Resolved relevant chunks: "
             + ", ".join(relevant_chunk_ids)
         )
@@ -150,14 +149,34 @@ def evaluate_strategy(
 
         print(
             f"Retrieval diagnosis: "
-            f"{diagnosis.diagnosis.value}"
+            f"{retrieval_diagnosis.diagnosis.value}"
+        )
+
+        print("\nCHUNKING AUTOPSY")
+        print("-" * 40)
+
+        print(
+            f"Diagnosis: "
+            f"{chunking_diagnosis.diagnosis.value}"
         )
 
         print(
-            f"Recall@1: {recall_1:.0f} | "
+            f"Explanation: "
+            f"{chunking_diagnosis.explanation}"
+        )
+
+        print(
+            f"\nRecall@1: {recall_1:.0f} | "
             f"Recall@3: {recall_3:.0f} | "
             f"RR: {rr:.3f}"
         )
+
+    print("\nChunking diagnoses:")
+
+    for diagnosis, count in sorted(
+        chunking_diagnoses.items()
+    ):
+        print(f"  {diagnosis}: {count}")
 
     return {
         "recall@1": (
@@ -176,7 +195,7 @@ def evaluate_strategy(
             sum(coverage_scores)
             / len(coverage_scores)
         ),
-        "boundary_risks": boundary_risks,
+        "chunking_diagnoses": chunking_diagnoses,
     }
 
 
@@ -213,9 +232,9 @@ def main():
         questions,
     )
 
-    print("\n" + "=" * 90)
+    print("\n" + "=" * 80)
     print("FINAL CHUNKING COMPARISON")
-    print("=" * 90)
+    print("=" * 80)
 
     print(
         f"{'Strategy':<20}"
@@ -223,10 +242,9 @@ def main():
         f"{'Recall@3':<12}"
         f"{'MRR':<10}"
         f"{'Coverage':<12}"
-        f"{'Boundary Risks':<15}"
     )
 
-    print("-" * 90)
+    print("-" * 70)
 
     print(
         f"{'Fixed-size':<20}"
@@ -234,7 +252,6 @@ def main():
         f"{fixed_metrics['recall@3']:<12.1%}"
         f"{fixed_metrics['mrr']:<10.3f}"
         f"{fixed_metrics['avg_coverage']:<12.1%}"
-        f"{fixed_metrics['boundary_risks']:<15}"
     )
 
     print(
@@ -243,7 +260,6 @@ def main():
         f"{paragraph_metrics['recall@3']:<12.1%}"
         f"{paragraph_metrics['mrr']:<10.3f}"
         f"{paragraph_metrics['avg_coverage']:<12.1%}"
-        f"{paragraph_metrics['boundary_risks']:<15}"
     )
 
 

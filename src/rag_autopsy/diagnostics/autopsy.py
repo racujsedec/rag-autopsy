@@ -161,3 +161,84 @@ def compare_reranking_stages(
             "of the relevant evidence."
         ),
     )
+
+
+from rag_autopsy.evaluation import GroundTruthResult
+
+
+class ChunkingDiagnosisType(str, Enum):
+    COMPLETE_EVIDENCE = "COMPLETE_EVIDENCE"
+    CHUNK_BOUNDARY_RISK = "CHUNK_BOUNDARY_RISK"
+    CHUNK_BOUNDARY_FAILURE = "CHUNK_BOUNDARY_FAILURE"
+
+
+@dataclass(frozen=True)
+class ChunkingAutopsyResult:
+    diagnosis: ChunkingDiagnosisType
+    evidence_coverage: float
+    explanation: str
+
+
+def diagnose_chunking(
+    ground_truth: GroundTruthResult,
+    retrieval_results: list[SearchResult],
+) -> ChunkingAutopsyResult:
+    """
+    Diagnose whether chunk boundaries damaged
+    the expected evidence passage.
+
+    COMPLETE_EVIDENCE:
+        At least one chunk preserves the full evidence.
+
+    CHUNK_BOUNDARY_RISK:
+        Evidence is fragmented, but retrieval still
+        surfaces the strongest supporting chunk.
+
+    CHUNK_BOUNDARY_FAILURE:
+        Evidence is fragmented and retrieval does not
+        surface the strongest supporting chunk.
+    """
+
+    if ground_truth.complete_evidence_preserved:
+        return ChunkingAutopsyResult(
+            diagnosis=ChunkingDiagnosisType.COMPLETE_EVIDENCE,
+            evidence_coverage=ground_truth.max_coverage,
+            explanation=(
+                "The expected evidence is preserved "
+                "completely within at least one chunk."
+            ),
+        )
+
+    relevant = set(
+        ground_truth.relevant_chunk_ids
+    )
+
+    retrieved_ids = {
+        result.chunk.chunk_id
+        for result in retrieval_results
+    }
+
+    if relevant & retrieved_ids:
+        return ChunkingAutopsyResult(
+            diagnosis=(
+                ChunkingDiagnosisType.CHUNK_BOUNDARY_RISK
+            ),
+            evidence_coverage=ground_truth.max_coverage,
+            explanation=(
+                "The expected evidence was fragmented "
+                "by chunk boundaries, but retrieval still "
+                "surfaced the strongest supporting chunk."
+            ),
+        )
+
+    return ChunkingAutopsyResult(
+        diagnosis=(
+            ChunkingDiagnosisType.CHUNK_BOUNDARY_FAILURE
+        ),
+        evidence_coverage=ground_truth.max_coverage,
+        explanation=(
+            "The expected evidence was fragmented by "
+            "chunk boundaries and the strongest supporting "
+            "chunk was not retrieved within the evaluation window."
+        ),
+    )
