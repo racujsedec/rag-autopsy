@@ -1,0 +1,3 @@
+A data platform incident caused several scheduled analytics jobs to miss their service-level targets. The initial symptom was a sharp increase in query latency. Investigation showed that a recent schema change increased shuffle volume and produced severe data skew in one of the largest joins. The cluster itself remained healthy.
+
+Engineers mitigated the incident by changing the partitioning strategy and introducing a broadcast join for a small reference dataset. They also added a regression test that compares shuffle volume and stage duration against historical baselines. No data was lost during the incident.
