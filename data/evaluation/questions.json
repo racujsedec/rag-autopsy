@@ -2,45 +2,31 @@
   {
     "question_id": "q001",
     "question": "Why did Arcadia Components operating margin decline?",
-    "relevant_chunk_ids": [
-      "financial_report::chunk-0000"
-    ]
+    "evidence_text": "The margin decline was driven mainly by higher logistics expense, temporary supplier surcharges, and an unfavorable product mix."
   },
   {
     "question_id": "q002",
     "question": "What was more strongly associated with order cancellations?",
-    "relevant_chunk_ids": [
-      "retail_ops::chunk-0002"
-    ]
+    "evidence_text": "A later review found that inaccurate inventory counts were more strongly associated with cancellations than warehouse labor availability."
   },
   {
     "question_id": "q003",
     "question": "What caused the analytics jobs to miss their service-level targets?",
-    "relevant_chunk_ids": [
-      "platform_incident::chunk-0000"
-    ]
+    "evidence_text": "Investigation showed that a recent schema change increased shuffle volume and produced severe data skew in one of the largest joins."
   },
   {
     "question_id": "q004",
     "question": "What actions did Arcadia plan to take to improve margins?",
-    "relevant_chunk_ids": [
-      "financial_report::chunk-0001",
-      "financial_report::chunk-0002"
-    ]
+    "evidence_text": "The company therefore plans to focus on pricing discipline, procurement negotiations, and a gradual reduction in expedited freight."
   },
   {
     "question_id": "q005",
     "question": "How did engineers mitigate the data platform incident?",
-    "relevant_chunk_ids": [
-      "platform_incident::chunk-0001"
-    ]
+    "evidence_text": "Engineers mitigated the incident by changing the partitioning strategy and introducing a broadcast join for a small reference dataset."
   },
   {
     "question_id": "q006",
     "question": "What did Northstar Retail change after fulfillment delays increased?",
-    "relevant_chunk_ids": [
-      "retail_ops::chunk-0000",
-      "retail_ops::chunk-0001"
-    ]
+    "evidence_text": "The operations team responded by increasing safety-stock thresholds for selected products and by adding an exception queue for inventory mismatches."
   }
 ]
