@@ -8,6 +8,7 @@ from rag_autopsy.evaluation import recall_at_k, reciprocal_rank
 from rag_autopsy.retrieval import (
     BM25Retriever,
     HybridRetriever,
+    RerankingRetriever,
     SemanticRetriever,
 )
 
@@ -120,6 +121,12 @@ def main():
     print("Loading hybrid retriever...")
     hybrid = HybridRetriever(chunks)
 
+    print("Loading cross-encoder reranker...")
+    reranked = RerankingRetriever(
+    base_retriever=hybrid,
+    candidate_k=6,
+    )
+
     bm25_metrics = evaluate_retriever(
         "BM25",
         bm25,
@@ -135,6 +142,12 @@ def main():
     hybrid_metrics = evaluate_retriever(
     "HYBRID RRF",
     hybrid,
+    questions,
+    )
+
+    reranked_metrics = evaluate_retriever(
+    "HYBRID + RERANKER",
+    reranked,
     questions,
     )
 
@@ -172,6 +185,12 @@ def main():
     f"{hybrid_metrics['mrr']:<15.3f}"
     )
 
+    print(
+    f"{'Hybrid+Rerank':<15}"
+    f"{reranked_metrics['recall@1']:<15.1%}"
+    f"{reranked_metrics['recall@3']:<15.1%}"
+    f"{reranked_metrics['mrr']:<15.3f}"
+    )
 
 if __name__ == "__main__":
     main()
