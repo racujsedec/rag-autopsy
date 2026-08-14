@@ -1,6 +1,8 @@
+import re
 from dataclasses import dataclass
 from enum import Enum
 
+from rag_autopsy.chunking import Chunk
 from rag_autopsy.retrieval import SearchResult
 
 
@@ -240,5 +242,277 @@ def diagnose_chunking(
             "The expected evidence was fragmented by "
             "chunk boundaries and the strongest supporting "
             "chunk was not retrieved within the evaluation window."
+        ),
+    )
+
+
+class ContextDiagnosisType(str, Enum):
+    CONTEXT_INTACT = "CONTEXT_INTACT"
+    CHUNK_CONTEXT_LOSS = "CHUNK_CONTEXT_LOSS"
+
+
+@dataclass(frozen=True)
+class ContextAutopsyResult:
+    diagnosis: ContextDiagnosisType
+    relevant_chunk_id: str | None
+    strongest_neighbor_chunk_id: str | None
+    relevant_anchor_overlap: int
+    neighbor_anchor_overlap: int
+    explanation: str
+
+
+_CONTEXT_STOP_WORDS = {
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "by",
+    "did",
+    "do",
+    "does",
+    "for",
+    "from",
+    "how",
+    "in",
+    "into",
+    "is",
+    "it",
+    "of",
+    "on",
+    "or",
+    "the",
+    "their",
+    "to",
+    "was",
+    "were",
+    "what",
+    "when",
+    "which",
+    "who",
+    "why",
+    "with",
+}
+
+
+def _context_tokens(
+    text: str,
+) -> set[str]:
+    tokens = {
+        token.lower()
+        for token in re.findall(
+            r"\b[a-zA-Z0-9]+\b",
+            text,
+        )
+    }
+
+    return tokens - _CONTEXT_STOP_WORDS
+
+
+def _anchor_overlap(
+    question_tokens: set[str],
+    chunk: Chunk,
+) -> int:
+    return len(
+        question_tokens
+        & _context_tokens(chunk.text)
+    )
+
+
+def diagnose_context(
+    question: str,
+    chunks: list[Chunk],
+    ground_truth: GroundTruthResult,
+    retrieval_results: list[SearchResult],
+) -> ContextAutopsyResult:
+    """
+    Diagnose whether an evidence chunk lost surrounding
+    context that helps connect it to the question.
+
+    CONTEXT_INTACT:
+        The relevant chunk was retrieved, or neighboring
+        chunks do not contain substantially stronger
+        question anchors.
+
+    CHUNK_CONTEXT_LOSS:
+        The relevant evidence is preserved completely,
+        but the relevant chunk was missed and an adjacent
+        chunk from the same document contains substantially
+        stronger question anchors.
+    """
+
+    relevant_ids = set(
+        ground_truth.relevant_chunk_ids
+    )
+
+    retrieved_ids = {
+        result.chunk.chunk_id
+        for result in retrieval_results
+    }
+
+    relevant_chunks = [
+        chunk
+        for chunk in chunks
+        if chunk.chunk_id in relevant_ids
+    ]
+
+    if not relevant_chunks:
+        return ContextAutopsyResult(
+            diagnosis=ContextDiagnosisType.CONTEXT_INTACT,
+            relevant_chunk_id=None,
+            strongest_neighbor_chunk_id=None,
+            relevant_anchor_overlap=0,
+            neighbor_anchor_overlap=0,
+            explanation=(
+                "No relevant evidence chunk was available "
+                "for context-loss analysis."
+            ),
+        )
+
+    if relevant_ids & retrieved_ids:
+        relevant_chunk = relevant_chunks[0]
+
+        return ContextAutopsyResult(
+            diagnosis=ContextDiagnosisType.CONTEXT_INTACT,
+            relevant_chunk_id=relevant_chunk.chunk_id,
+            strongest_neighbor_chunk_id=None,
+            relevant_anchor_overlap=0,
+            neighbor_anchor_overlap=0,
+            explanation=(
+                "The relevant evidence chunk was retrieved, "
+                "so contextual anchors were sufficient for "
+                "the evaluated retrieval window."
+            ),
+        )
+
+    question_tokens = _context_tokens(
+        question
+    )
+
+    best_relevant = None
+    best_neighbor = None
+    best_relevant_overlap = 0
+    best_neighbor_overlap = 0
+
+    for relevant_chunk in relevant_chunks:
+        same_document = sorted(
+            (
+                chunk
+                for chunk in chunks
+                if chunk.document_id
+                == relevant_chunk.document_id
+            ),
+            key=lambda chunk: (
+                chunk.start_word,
+                chunk.end_word,
+            ),
+        )
+
+        try:
+            index = same_document.index(
+                relevant_chunk
+            )
+        except ValueError:
+            continue
+
+        neighbors = []
+
+        if index > 0:
+            neighbors.append(
+                same_document[index - 1]
+            )
+
+        if index + 1 < len(same_document):
+            neighbors.append(
+                same_document[index + 1]
+            )
+
+        relevant_overlap = _anchor_overlap(
+            question_tokens,
+            relevant_chunk,
+        )
+
+        for neighbor in neighbors:
+            neighbor_overlap = _anchor_overlap(
+                question_tokens,
+                neighbor,
+            )
+
+            if (
+                best_neighbor is None
+                or neighbor_overlap
+                > best_neighbor_overlap
+            ):
+                best_relevant = relevant_chunk
+                best_neighbor = neighbor
+                best_relevant_overlap = (
+                    relevant_overlap
+                )
+                best_neighbor_overlap = (
+                    neighbor_overlap
+                )
+
+    context_loss = (
+        ground_truth.complete_evidence_preserved
+        and best_neighbor is not None
+        and best_neighbor_overlap >= 2
+        and best_neighbor_overlap
+        > best_relevant_overlap
+    )
+
+    if context_loss:
+        return ContextAutopsyResult(
+            diagnosis=(
+                ContextDiagnosisType.CHUNK_CONTEXT_LOSS
+            ),
+            relevant_chunk_id=(
+                best_relevant.chunk_id
+                if best_relevant
+                else None
+            ),
+            strongest_neighbor_chunk_id=(
+                best_neighbor.chunk_id
+            ),
+            relevant_anchor_overlap=(
+                best_relevant_overlap
+            ),
+            neighbor_anchor_overlap=(
+                best_neighbor_overlap
+            ),
+            explanation=(
+                "The answer evidence is preserved, but an "
+                "adjacent chunk contains stronger question "
+                "anchors than the evidence chunk. The chunk "
+                "boundary likely separated identifying "
+                "context from the answer."
+            ),
+        )
+
+    relevant_chunk = (
+        best_relevant
+        if best_relevant is not None
+        else relevant_chunks[0]
+    )
+
+    return ContextAutopsyResult(
+        diagnosis=ContextDiagnosisType.CONTEXT_INTACT,
+        relevant_chunk_id=relevant_chunk.chunk_id,
+        strongest_neighbor_chunk_id=(
+            best_neighbor.chunk_id
+            if best_neighbor is not None
+            else None
+        ),
+        relevant_anchor_overlap=(
+            best_relevant_overlap
+        ),
+        neighbor_anchor_overlap=(
+            best_neighbor_overlap
+        ),
+        explanation=(
+            "Adjacent chunks do not contain substantially "
+            "stronger question anchors than the relevant "
+            "evidence chunk."
         ),
     )
