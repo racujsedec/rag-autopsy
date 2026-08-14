@@ -7,6 +7,7 @@ from rag_autopsy.config import ChunkingConfig
 from rag_autopsy.diagnostics import (
     compare_reranking_stages,
 )
+from rag_autopsy.evaluation.ground_truth import resolve_ground_truth
 from rag_autopsy.retrieval import (
     HybridRetriever,
     RerankingRetriever,
@@ -67,7 +68,14 @@ def main():
 
     for item in questions:
         question = item["question"]
-        relevant = item["relevant_chunk_ids"]
+        evidence_text = item["evidence_text"]
+
+        ground_truth = resolve_ground_truth(
+            chunks=chunks,
+            evidence_text=evidence_text,
+        )
+
+        relevant = ground_truth.relevant_chunk_ids
 
         before_results = hybrid.search(
             question,
@@ -93,8 +101,18 @@ def main():
         print(f"Question: {question}")
 
         print(
-            "Relevant evidence: "
+            "Relevant chunks: "
             + ", ".join(relevant)
+        )
+
+        print(
+            f"Evidence coverage: "
+            f"{ground_truth.max_coverage:.1%}"
+        )
+
+        print(
+            f"Complete evidence preserved: "
+            f"{ground_truth.complete_evidence_preserved}"
         )
 
         print(

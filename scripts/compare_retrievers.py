@@ -5,6 +5,7 @@ from rag_autopsy.chunking import FixedSizeChunker
 from rag_autopsy.config import ChunkingConfig
 from rag_autopsy.diagnostics import diagnose_retrieval
 from rag_autopsy.evaluation import recall_at_k, reciprocal_rank
+from rag_autopsy.evaluation.ground_truth import resolve_ground_truth
 from rag_autopsy.retrieval import (
     BM25Retriever,
     HybridRetriever,
@@ -46,6 +47,7 @@ def evaluate_retriever(
     name,
     retriever,
     questions,
+    chunks,
 ):
     recall_1_scores = []
     recall_3_scores = []
@@ -56,12 +58,20 @@ def evaluate_retriever(
     print("=" * 80)
 
     for item in questions:
-        results = retriever.search(
-            item["question"],
-            top_k=3,
+        question = item["question"]
+        evidence_text = item["evidence_text"]
+
+        ground_truth = resolve_ground_truth(
+            chunks=chunks,
+            evidence_text=evidence_text,
         )
 
-        relevant = item["relevant_chunk_ids"]
+        relevant = ground_truth.relevant_chunk_ids
+
+        results = retriever.search(
+            question,
+            top_k=3,
+        )
 
         r1 = recall_at_k(
             results,
@@ -98,13 +108,20 @@ def evaluate_retriever(
         print(
             f"{item['question_id']} | "
             f"Top: {top_chunk} | "
+            f"Coverage: {ground_truth.max_coverage:.1%} | "
             f"Diagnosis: {diagnosis.diagnosis.value}"
         )
 
     return {
-        "recall@1": sum(recall_1_scores) / len(recall_1_scores),
-        "recall@3": sum(recall_3_scores) / len(recall_3_scores),
-        "mrr": sum(rr_scores) / len(rr_scores),
+        "recall@1": (
+            sum(recall_1_scores) / len(recall_1_scores)
+        ),
+        "recall@3": (
+            sum(recall_3_scores) / len(recall_3_scores)
+        ),
+        "mrr": (
+            sum(rr_scores) / len(rr_scores)
+        ),
     }
 
 
@@ -123,32 +140,36 @@ def main():
 
     print("Loading cross-encoder reranker...")
     reranked = RerankingRetriever(
-    base_retriever=hybrid,
-    candidate_k=6,
+        base_retriever=hybrid,
+        candidate_k=6,
     )
 
     bm25_metrics = evaluate_retriever(
         "BM25",
         bm25,
         questions,
+        chunks,
     )
 
     semantic_metrics = evaluate_retriever(
         "SEMANTIC",
         semantic,
         questions,
+        chunks,
     )
 
     hybrid_metrics = evaluate_retriever(
-    "HYBRID RRF",
-    hybrid,
-    questions,
+        "HYBRID RRF",
+        hybrid,
+        questions,
+        chunks,
     )
 
     reranked_metrics = evaluate_retriever(
-    "HYBRID + RERANKER",
-    reranked,
-    questions,
+        "HYBRID + RERANKER",
+        reranked,
+        questions,
+        chunks,
     )
 
     print("\n" + "=" * 80)
@@ -179,17 +200,17 @@ def main():
     )
    
     print(
-    f"{'Hybrid RRF':<15}"
-    f"{hybrid_metrics['recall@1']:<15.1%}"
-    f"{hybrid_metrics['recall@3']:<15.1%}"
-    f"{hybrid_metrics['mrr']:<15.3f}"
+        f"{'Hybrid RRF':<15}"
+        f"{hybrid_metrics['recall@1']:<15.1%}"
+        f"{hybrid_metrics['recall@3']:<15.1%}"
+        f"{hybrid_metrics['mrr']:<15.3f}"
     )
 
     print(
-    f"{'Hybrid+Rerank':<15}"
-    f"{reranked_metrics['recall@1']:<15.1%}"
-    f"{reranked_metrics['recall@3']:<15.1%}"
-    f"{reranked_metrics['mrr']:<15.3f}"
+        f"{'Hybrid+Rerank':<15}"
+        f"{reranked_metrics['recall@1']:<15.1%}"
+        f"{reranked_metrics['recall@3']:<15.1%}"
+        f"{reranked_metrics['mrr']:<15.3f}"
     )
 
 if __name__ == "__main__":

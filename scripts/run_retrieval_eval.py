@@ -6,6 +6,7 @@ from rag_autopsy.chunking import FixedSizeChunker
 from rag_autopsy.config import ChunkingConfig
 from rag_autopsy.diagnostics import diagnose_retrieval
 from rag_autopsy.evaluation import recall_at_k, reciprocal_rank
+from rag_autopsy.evaluation.ground_truth import resolve_ground_truth
 from rag_autopsy.retrieval import BM25Retriever
 
 
@@ -55,7 +56,14 @@ def main():
 
     for item in questions:
         question = item["question"]
-        relevant_chunk_ids = item["relevant_chunk_ids"]
+        evidence_text = item["evidence_text"]
+
+        ground_truth = resolve_ground_truth(
+            chunks=chunks,
+            evidence_text=evidence_text,
+        )
+
+        relevant_chunk_ids = ground_truth.relevant_chunk_ids
 
         results = retriever.search(
             query=question,
@@ -94,6 +102,16 @@ def main():
         print(
             f"Relevant chunks: "
             f"{', '.join(relevant_chunk_ids)}"
+        )
+
+        print(
+            f"Evidence coverage: "
+            f"{ground_truth.max_coverage:.1%}"
+        )
+
+        print(
+            f"Complete evidence preserved: "
+            f"{ground_truth.complete_evidence_preserved}"
         )
 
         print("\nTop results:")
