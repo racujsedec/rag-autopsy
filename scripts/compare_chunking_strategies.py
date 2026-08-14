@@ -9,6 +9,7 @@ from rag_autopsy.chunking import (
 from rag_autopsy.config import ChunkingConfig
 from rag_autopsy.diagnostics import (
     diagnose_chunking,
+    diagnose_context,
     diagnose_retrieval,
 )
 from rag_autopsy.evaluation import (
@@ -64,6 +65,7 @@ def evaluate_strategy(
     coverage_scores = []
 
     chunking_diagnoses = Counter()
+    context_diagnoses = Counter()
 
     print("\n" + "=" * 80)
     print(name)
@@ -135,6 +137,13 @@ def evaluate_strategy(
             results,
         )
 
+        context_diagnosis = diagnose_context(
+            question=question,
+            chunks=chunks,
+            ground_truth=ground_truth,
+            retrieval_results=results,
+        )
+
         recall_1_scores.append(recall_1)
         recall_3_scores.append(recall_3)
         rr_scores.append(rr)
@@ -145,6 +154,10 @@ def evaluate_strategy(
 
         chunking_diagnoses[
             chunking_diagnosis.diagnosis.value
+        ] += 1
+
+        context_diagnoses[
+            context_diagnosis.diagnosis.value
         ] += 1
 
         print(
@@ -175,6 +188,34 @@ def evaluate_strategy(
             f"{chunking_diagnosis.explanation}"
         )
 
+        print("\nCONTEXT AUTOPSY")
+        print("-" * 40)
+
+        print(
+            f"Diagnosis: "
+            f"{context_diagnosis.diagnosis.value}"
+        )
+
+        print(
+            f"Relevant anchor overlap: "
+            f"{context_diagnosis.relevant_anchor_overlap}"
+        )
+
+        print(
+            f"Neighbor anchor overlap: "
+            f"{context_diagnosis.neighbor_anchor_overlap}"
+        )
+
+        print(
+            f"Strongest neighbor: "
+            f"{context_diagnosis.strongest_neighbor_chunk_id}"
+        )
+
+        print(
+            f"Explanation: "
+            f"{context_diagnosis.explanation}"
+        )
+
         print(
             f"\nRecall@1: {recall_1:.0f} | "
             f"Recall@3: {recall_3:.0f} | "
@@ -185,6 +226,13 @@ def evaluate_strategy(
 
     for diagnosis, count in sorted(
         chunking_diagnoses.items()
+    ):
+        print(f"  {diagnosis}: {count}")
+
+    print("\nContext diagnoses:")
+
+    for diagnosis, count in sorted(
+        context_diagnoses.items()
     ):
         print(f"  {diagnosis}: {count}")
 
@@ -206,6 +254,7 @@ def evaluate_strategy(
             / len(coverage_scores)
         ),
         "chunking_diagnoses": chunking_diagnoses,
+        "context_diagnoses": context_diagnoses,
     }
 
 
