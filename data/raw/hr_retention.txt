@@ -1,0 +1,3 @@
+Apex Labs analyzed voluntary attrition among experienced software engineers. The strongest associations were long promotion wait times and unusually wide manager spans. Remote-work participation was similar among employees who stayed and employees who left, so the analysis did not support remote work as the main explanation for attrition. Compensation was competitive for most of the affected roles.
+
+Apex introduced clearer promotion-review windows and reduced the number of direct reports for several engineering managers. Human resources also added promotion-wait time to its quarterly retention dashboard. Exit rates began to moderate, although leadership noted that the observation period was still too short to claim a complete reversal.

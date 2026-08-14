@@ -2,31 +2,295 @@
   {
     "question_id": "q001",
     "question": "Why did Arcadia Components operating margin decline?",
+    "question_type": "direct",
+    "answerable": true,
     "evidence_text": "The margin decline was driven mainly by higher logistics expense, temporary supplier surcharges, and an unfavorable product mix."
   },
   {
     "question_id": "q002",
     "question": "What was more strongly associated with order cancellations?",
+    "question_type": "distractor",
+    "answerable": true,
     "evidence_text": "A later review found that inaccurate inventory counts were more strongly associated with cancellations than warehouse labor availability."
   },
   {
     "question_id": "q003",
     "question": "What caused the analytics jobs to miss their service-level targets?",
+    "question_type": "direct",
+    "answerable": true,
     "evidence_text": "Investigation showed that a recent schema change increased shuffle volume and produced severe data skew in one of the largest joins."
   },
   {
     "question_id": "q004",
     "question": "What actions did Arcadia plan to take to improve margins?",
+    "question_type": "semantic",
+    "answerable": true,
     "evidence_text": "The company therefore plans to focus on pricing discipline, procurement negotiations, and a gradual reduction in expedited freight."
   },
   {
     "question_id": "q005",
     "question": "How did engineers mitigate the data platform incident?",
+    "question_type": "semantic",
+    "answerable": true,
     "evidence_text": "Engineers mitigated the incident by changing the partitioning strategy and introducing a broadcast join for a small reference dataset."
   },
   {
     "question_id": "q006",
     "question": "What did Northstar Retail change after fulfillment delays increased?",
+    "question_type": "distractor",
+    "answerable": true,
     "evidence_text": "The operations team responded by increasing safety-stock thresholds for selected products and by adding an exception queue for inventory mismatches."
+  },
+  {
+    "question_id": "q007",
+    "question": "What caused the AtlasPay checkout outage?",
+    "question_type": "direct",
+    "answerable": true,
+    "evidence_text": "The outage was traced to an expired intermediate certificate used by the tokenization service."
+  },
+  {
+    "question_id": "q008",
+    "question": "What caused Crestline Motors paint defects to increase?",
+    "question_type": "direct",
+    "answerable": true,
+    "evidence_text": "The defect increase was linked to elevated humidity in the paint booth and a delay in replacing intake filters."
+  },
+  {
+    "question_id": "q009",
+    "question": "What caused the Pinebridge Health claim-processing delays?",
+    "question_type": "direct",
+    "answerable": true,
+    "evidence_text": "The main source of delay was a provider-taxonomy mismatch introduced after a payer rules update."
+  },
+  {
+    "question_id": "q010",
+    "question": "What type of attack targeted the Silverline Software customer portal?",
+    "question_type": "direct",
+    "answerable": true,
+    "evidence_text": "The attack consisted mostly of automated credential-stuffing attempts against the customer portal."
+  },
+  {
+    "question_id": "q011",
+    "question": "What caused Meadow Grocers forecast bias?",
+    "question_type": "direct",
+    "answerable": true,
+    "evidence_text": "The bias came from a shifted holiday calendar and sparse sales history for recently opened stores."
+  },
+  {
+    "question_id": "q012",
+    "question": "What were the strongest drivers of Ember Apparel returns?",
+    "question_type": "direct",
+    "answerable": true,
+    "evidence_text": "The review found that inconsistent garment sizing and product imagery that understated fit differences were the two strongest drivers of returns."
+  },
+  {
+    "question_id": "q013",
+    "question": "Which resources were primarily responsible for Orion Media's cloud bill surge?",
+    "question_type": "semantic",
+    "answerable": true,
+    "evidence_text": "Most of the increase came from orphaned GPU instances and cross-region data transfer created by a new rendering workflow."
+  },
+  {
+    "question_id": "q014",
+    "question": "How did Beacon Distribution restore normal scanner performance?",
+    "question_type": "semantic",
+    "answerable": true,
+    "evidence_text": "The team rolled back the firmware and reduced the batch retry setting, after which scan latency returned to normal."
+  },
+  {
+    "question_id": "q015",
+    "question": "Why were calls failing near the RidgeTel stadium even though signal coverage was adequate?",
+    "question_type": "semantic",
+    "answerable": true,
+    "evidence_text": "Engineers traced the failures to signaling-channel congestion during the event rather than insufficient radio coverage."
+  },
+  {
+    "question_id": "q016",
+    "question": "Which workplace conditions were most closely linked to experienced engineers leaving Apex Labs?",
+    "question_type": "semantic",
+    "answerable": true,
+    "evidence_text": "The strongest associations were long promotion wait times and unusually wide manager spans."
+  },
+  {
+    "question_id": "q017",
+    "question": "What combination made the Helix Insurance migration validation phase run slowly?",
+    "question_type": "semantic",
+    "answerable": true,
+    "evidence_text": "The slowdown came from unindexed foreign-key validation combined with a checksum job competing for I/O."
+  },
+  {
+    "question_id": "q018",
+    "question": "What chiefly improved Summit Office Products' margin despite flat volume?",
+    "question_type": "semantic",
+    "answerable": true,
+    "evidence_text": "The improvement came mainly from selective list-price increases and tighter controls on discount leakage."
+  },
+  {
+    "question_id": "q019",
+    "question": "What actually drove Meridian Appliances' late component arrivals?",
+    "question_type": "distractor",
+    "answerable": true,
+    "evidence_text": "Late component arrivals were driven mainly by a concentration of orders at two suppliers and longer customs clearance at one port."
+  },
+  {
+    "question_id": "q020",
+    "question": "What was the biggest contributor to Lumen Telecom's support backlog?",
+    "question_type": "distractor",
+    "answerable": true,
+    "evidence_text": "The largest contributor to the backlog was a new identity-verification step that increased average handling time, especially for account-recovery cases."
+  },
+  {
+    "question_id": "q021",
+    "question": "Why did Harbor Bank suddenly generate more fraud alerts even though confirmed fraud did not rise?",
+    "question_type": "distractor",
+    "answerable": true,
+    "evidence_text": "The spike was caused by merchant-category drift that pushed legitimate travel purchases above a risk threshold."
+  },
+  {
+    "question_id": "q022",
+    "question": "What explained GreenVale Energy's forecast errors rather than a shortage of generation capacity?",
+    "question_type": "distractor",
+    "answerable": true,
+    "evidence_text": "The largest error source was a stale weather feed, compounded by calibration drift in two wind-speed sensors."
+  },
+  {
+    "question_id": "q023",
+    "question": "What caused BluePeak Financial's vendor to miss service levels if cybersecurity was not the issue?",
+    "question_type": "distractor",
+    "answerable": true,
+    "evidence_text": "The missed service levels were traced to a subcontractor queue and a manual approval gate at the vendor."
+  },
+  {
+    "question_id": "q024",
+    "question": "What caused Novus Furniture's import delays despite available trucking capacity?",
+    "question_type": "distractor",
+    "answerable": true,
+    "evidence_text": "The largest delays came from extended port dwell and carton-label errors that forced manual receiving checks."
+  },
+  {
+    "question_id": "q025",
+    "question": "How did AtlasPay recover from the certificate incident and reduce the chance of a repeat?",
+    "question_type": "multi_sentence",
+    "answerable": true,
+    "evidence_text": "Operators rotated the certificate and restarted the tokenization pods. They also added an expiry monitor that alerts 30 days before certificate renewal is required."
+  },
+  {
+    "question_id": "q026",
+    "question": "What did Cedar Foods learn when it compared the apparent campaign lift with the holdout analysis?",
+    "question_type": "multi_sentence",
+    "answerable": true,
+    "evidence_text": "A simple before-and-after view suggested that the new email subject line produced most of the lift. The holdout analysis showed that segment mix and coupon timing explained more of the increase, while the subject line had a smaller incremental effect."
+  },
+  {
+    "question_id": "q027",
+    "question": "What cloud-cost changes did Orion Media make, and what happened afterward?",
+    "question_type": "multi_sentence",
+    "answerable": true,
+    "evidence_text": "The team terminated idle GPU instances, moved the rendering workload to a single region, and tightened autoscaling limits. Daily cloud spend fell the following week without a measurable increase in render time."
+  },
+  {
+    "question_id": "q028",
+    "question": "What corrective actions did Crestline Motors take, and what was the quality result?",
+    "question_type": "multi_sentence",
+    "answerable": true,
+    "evidence_text": "Maintenance replaced the filters and tightened humidity alarms for the booth. Defect rates returned to the prior-month range after those controls were introduced."
+  },
+  {
+    "question_id": "q029",
+    "question": "How did Pinebridge Health address the taxonomy problem, and what happened to processing time?",
+    "question_type": "multi_sentence",
+    "answerable": true,
+    "evidence_text": "The team added a taxonomy mapping layer and a pre-submission validation rule for affected claim types. Median processing time improved after the mapping was deployed."
+  },
+  {
+    "question_id": "q030",
+    "question": "What caused the Kestrel Travel login crashes, and how did engineers fix the rollout?",
+    "question_type": "multi_sentence",
+    "answerable": true,
+    "evidence_text": "The crash was caused by an outdated mobile SDK that returned a null value the new login flow did not handle. Backend authentication remained healthy, and server-side login requests that reached the service completed normally. The issue therefore appeared only in specific client versions.\n\nEngineers pinned the corrected SDK version and added a null guard before re-enabling the feature."
+  },
+  {
+    "question_id": "q031",
+    "question": "What service-desk changes did Vector Systems introduce, and what was the result?",
+    "question_type": "multi_sentence",
+    "answerable": true,
+    "evidence_text": "The team made resolution codes mandatory and delayed automatic closure for tickets with recent customer replies. Reopen rates declined over the next two reporting periods."
+  },
+  {
+    "question_id": "q032",
+    "question": "For Meridian Appliances, what was ruled out as the primary reason lead times worsened?",
+    "question_type": "ambiguous",
+    "answerable": true,
+    "evidence_text": "The review did not find a drop in customer demand to be the primary reason lead times worsened."
+  },
+  {
+    "question_id": "q033",
+    "question": "For Lumen Telecom, what did the review reject as the main explanation for the support backlog?",
+    "question_type": "ambiguous",
+    "answerable": true,
+    "evidence_text": "The review did not identify agent headcount as the primary cause of the backlog."
+  },
+  {
+    "question_id": "q034",
+    "question": "In GreenVale Energy's review, what remained adequate while forecast accuracy deteriorated?",
+    "question_type": "ambiguous",
+    "answerable": true,
+    "evidence_text": "Available generation capacity remained adequate, and curtailment was not unusually high during the affected period."
+  },
+  {
+    "question_id": "q035",
+    "question": "At Helix Insurance, which infrastructure factor was ruled out as the migration bottleneck?",
+    "question_type": "ambiguous",
+    "answerable": true,
+    "evidence_text": "Network throughput between the source and target environments remained within the expected range, and replication lag was low before the validation phase began."
+  },
+  {
+    "question_id": "q036",
+    "question": "In Ember Apparel's returns review, which suspected cause accounted for only a small portion of returns?",
+    "question_type": "ambiguous",
+    "answerable": true,
+    "evidence_text": "Shipping damage accounted for only a small share of returned items, and delivery speed was similar for returned and retained orders."
+  },
+  {
+    "question_id": "q037",
+    "question": "Which company did Arcadia Components acquire during the second quarter?",
+    "question_type": "unanswerable",
+    "answerable": false,
+    "evidence_text": ""
+  },
+  {
+    "question_id": "q038",
+    "question": "How much ransom did Silverline Software pay after the credential-stuffing attack?",
+    "question_type": "unanswerable",
+    "answerable": false,
+    "evidence_text": ""
+  },
+  {
+    "question_id": "q039",
+    "question": "Which FDA recall was responsible for Crestline Motors' paint defects?",
+    "question_type": "unanswerable",
+    "answerable": false,
+    "evidence_text": ""
+  },
+  {
+    "question_id": "q040",
+    "question": "What exact dollar amount did Orion Media save after reducing cloud costs?",
+    "question_type": "unanswerable",
+    "answerable": false,
+    "evidence_text": ""
+  },
+  {
+    "question_id": "q041",
+    "question": "Which competitor's promotion did Cedar Foods copy for its campaign?",
+    "question_type": "unanswerable",
+    "answerable": false,
+    "evidence_text": ""
+  },
+  {
+    "question_id": "q042",
+    "question": "What union contract change caused Apex Labs engineer attrition?",
+    "question_type": "unanswerable",
+    "answerable": false,
+    "evidence_text": ""
   }
 ]

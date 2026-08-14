@@ -1,0 +1,3 @@
+Pinebridge Health reviewed a rise in claim-processing delays for a subset of outpatient providers. The main source of delay was a provider-taxonomy mismatch introduced after a payer rules update. Claims entered the normal intake queue but were repeatedly routed for manual review because provider classifications no longer matched the updated rule set. Staffing levels in the claims team remained within the expected range.
+
+The team added a taxonomy mapping layer and a pre-submission validation rule for affected claim types. Median processing time improved after the mapping was deployed. Pinebridge also began tracking taxonomy-related exceptions separately so that future payer-rule changes can be reviewed before they create a large manual-review queue.

@@ -1,0 +1,3 @@
+Vector Systems analyzed why service-desk tickets were being reopened shortly after closure. The review found that incomplete resolution codes and aggressive automatic-close timing were the main contributors. Agent tenure had little relationship with reopen rates, despite an early concern that newer analysts were closing tickets too quickly. Customer reply timestamps showed that some tickets closed while users were still responding.
+
+The team made resolution codes mandatory and delayed automatic closure for tickets with recent customer replies. Reopen rates declined over the next two reporting periods. Supervisors also added a weekly audit of reopened tickets so recurring resolution-code problems can be identified by category.

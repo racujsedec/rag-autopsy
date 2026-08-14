@@ -1,0 +1,3 @@
+BluePeak Financial reviewed repeated service-level misses by an external document-processing vendor. The missed service levels were traced to a subcontractor queue and a manual approval gate at the vendor. Cybersecurity controls had passed the most recent assessment, and there was no evidence that a security incident caused the processing delays. The vendor's core platform remained available during the missed windows.
+
+BluePeak required the vendor to expose subcontractor queue metrics and created an escalation threshold for items waiting beyond the agreed limit. The manual approval step was also reduced for low-risk document types. Service-level performance improved after the changes, though BluePeak kept the vendor on enhanced monitoring for another quarter.

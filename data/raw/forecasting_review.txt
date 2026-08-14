@@ -1,0 +1,3 @@
+Meadow Grocers investigated persistent over-forecasting at several stores. The bias came from a shifted holiday calendar and sparse sales history for recently opened stores. Promotion feeds were complete, and price data matched the merchandising system. The largest errors appeared around holidays that fell in different reporting weeks than they had the previous year.
+
+The forecasting team added explicit holiday-shift features and a cold-start adjustment for stores with limited history. Forecast bias decreased in the next planning cycle. Analysts also created a report that separates established stores from new locations so that a small number of cold-start stores do not distort the network-wide error summary.

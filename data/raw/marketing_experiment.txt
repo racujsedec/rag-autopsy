@@ -1,0 +1,3 @@
+Cedar Foods evaluated a promotional campaign that appeared to increase online conversion. A simple before-and-after view suggested that the new email subject line produced most of the lift. The holdout analysis showed that segment mix and coupon timing explained more of the increase, while the subject line had a smaller incremental effect. Website availability and checkout performance were stable during the experiment.
+
+The marketing team changed its reporting template to require holdout results before attributing campaign lift to a creative change. It also standardized coupon timing across comparison groups. The revised approach produced a smaller but more credible estimate of the subject-line effect and reduced disagreement between marketing and analytics teams.

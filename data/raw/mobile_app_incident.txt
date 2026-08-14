@@ -1,0 +1,3 @@
+Kestrel Travel rolled out a redesigned mobile login flow and soon observed crashes on a subset of devices. The crash was caused by an outdated mobile SDK that returned a null value the new login flow did not handle. Backend authentication remained healthy, and server-side login requests that reached the service completed normally. The issue therefore appeared only in specific client versions.
+
+Engineers pinned the corrected SDK version and added a null guard before re-enabling the feature. Crash-free session rate returned to its previous level after the update. The mobile team also added a compatibility test covering older supported operating-system versions before future authentication-flow changes are released broadly.

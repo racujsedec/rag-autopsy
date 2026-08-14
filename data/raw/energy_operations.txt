@@ -1,0 +1,3 @@
+GreenVale Energy reviewed why its day-ahead renewable-generation forecasts became less accurate. The largest error source was a stale weather feed, compounded by calibration drift in two wind-speed sensors. Available generation capacity remained adequate, and curtailment was not unusually high during the affected period. The forecasting model itself had not been redeployed immediately before the errors increased.
+
+Operations refreshed the weather feed, recalibrated the two sensors, and added freshness checks for external forecast data. Forecast error declined after those changes. The team also began comparing sensor readings across nearby sites so that calibration drift can be detected before it materially affects the day-ahead forecast.

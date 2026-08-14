@@ -1,0 +1,3 @@
+Novus Furniture reviewed delivery delays affecting imported dining-room products. The largest delays came from extended port dwell and carton-label errors that forced manual receiving checks. Trucking capacity from the port was generally sufficient once containers were released. Several teams initially suspected carrier shortages, but dispatch records showed that trucks were available for most delayed loads.
+
+Novus began submitting import documentation earlier and added automated label validation before suppliers released cartons. The receiving team also created a separate exception lane for shipments with label mismatches. Average dock-to-stock time improved, while port dwell remained sensitive to external congestion during peak weeks.

@@ -1,0 +1,3 @@
+RidgeTel investigated a rise in dropped calls around a stadium during a major sporting event. Radio signal measurements showed adequate coverage, but signaling traffic increased much faster than ordinary call volume. Engineers traced the failures to signaling-channel congestion during the event rather than insufficient radio coverage. Nearby sites with spare radio capacity still experienced similar setup failures.
+
+The network team increased signaling capacity for the event profile and introduced temporary traffic shaping for repeated registration attempts. Call setup success improved during the next large event. RidgeTel also added signaling-channel utilization to its event-readiness dashboard instead of relying only on radio-capacity and signal-strength measures.

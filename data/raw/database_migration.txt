@@ -1,0 +1,3 @@
+Helix Insurance encountered unexpectedly long validation windows during a database migration rehearsal. The slowdown came from unindexed foreign-key validation combined with a checksum job competing for I/O. Network throughput between the source and target environments remained within the expected range, and replication lag was low before the validation phase began.
+
+The migration team added temporary indexes for the validation window and scheduled checksum work after the heaviest constraint checks completed. Validation time dropped substantially in the next rehearsal. Engineers also added separate timing metrics for copy, constraint validation, and checksum stages so future bottlenecks can be isolated instead of treating migration duration as one number.

@@ -1,0 +1,3 @@
+AtlasPay experienced checkout failures across several merchants during a short production incident. The outage was traced to an expired intermediate certificate used by the tokenization service. Application servers could still reach the database, and database health metrics remained normal throughout the event. The failure was therefore not caused by database capacity or transaction-lock contention.
+
+Operators rotated the certificate and restarted the tokenization pods. They also added an expiry monitor that alerts 30 days before certificate renewal is required. Successful checkout volume recovered immediately after the pods restarted. A follow-up review added certificate-expiry checks to the deployment checklist for services that participate in the payment path.
