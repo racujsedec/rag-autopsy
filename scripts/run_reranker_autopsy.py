@@ -68,14 +68,7 @@ def main():
 
     for item in questions:
         question = item["question"]
-        evidence_text = item["evidence_text"]
-
-        ground_truth = resolve_ground_truth(
-            chunks=chunks,
-            evidence_text=evidence_text,
-        )
-
-        relevant = ground_truth.relevant_chunk_ids
+        answerable = item.get("answerable", True)
 
         before_results = hybrid.search(
             question,
@@ -87,6 +80,41 @@ def main():
             top_k=6,
         )
 
+        print(f"\n{item['question_id']}")
+        print(f"Question: {question}")
+        print(f"Answerable: {answerable}")
+
+        if not answerable:
+            before_top = (
+                before_results[0].chunk.chunk_id
+                if before_results
+                else "NO RESULT"
+            )
+
+            after_top = (
+                after_results[0].chunk.chunk_id
+                if after_results
+                else "NO RESULT"
+            )
+
+            print(f"Before reranking top: {before_top}")
+            print(f"After reranking top: {after_top}")
+
+            print(
+                "Evaluation: UNANSWERABLE — "
+                "excluded from reranker stage analysis."
+            )
+            continue
+
+        evidence_text = item["evidence_text"]
+
+        ground_truth = resolve_ground_truth(
+            chunks=chunks,
+            evidence_text=evidence_text,
+        )
+
+        relevant = ground_truth.relevant_chunk_ids
+
         comparison = compare_reranking_stages(
             before_results,
             after_results,
@@ -96,9 +124,6 @@ def main():
         diagnosis_counts[
             comparison.diagnosis.value
         ] += 1
-
-        print(f"\n{item['question_id']}")
-        print(f"Question: {question}")
 
         print(
             "Relevant chunks: "

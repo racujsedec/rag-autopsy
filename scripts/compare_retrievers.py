@@ -59,6 +59,28 @@ def evaluate_retriever(
 
     for item in questions:
         question = item["question"]
+        answerable = item.get("answerable", True)
+
+        results = retriever.search(
+            question,
+            top_k=3,
+        )
+
+        top_chunk = (
+            results[0].chunk.chunk_id
+            if results
+            else "NO RESULT"
+        )
+
+        if not answerable:
+            print(
+                f"{item['question_id']} | "
+                f"Top: {top_chunk} | "
+                f"Coverage: N/A | "
+                f"Diagnosis: UNANSWERABLE"
+            )
+            continue
+
         evidence_text = item["evidence_text"]
 
         ground_truth = resolve_ground_truth(
@@ -67,11 +89,6 @@ def evaluate_retriever(
         )
 
         relevant = ground_truth.relevant_chunk_ids
-
-        results = retriever.search(
-            question,
-            top_k=3,
-        )
 
         r1 = recall_at_k(
             results,
@@ -98,12 +115,6 @@ def evaluate_retriever(
         recall_1_scores.append(r1)
         recall_3_scores.append(r3)
         rr_scores.append(rr)
-
-        top_chunk = (
-            results[0].chunk.chunk_id
-            if results
-            else "NO RESULT"
-        )
 
         print(
             f"{item['question_id']} | "

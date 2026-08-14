@@ -71,6 +71,32 @@ def evaluate_strategy(
 
     for item in questions:
         question = item["question"]
+        answerable = item.get("answerable", True)
+
+        results = retriever.search(
+            question,
+            top_k=3,
+        )
+
+        top_chunk = (
+            results[0].chunk.chunk_id
+            if results
+            else "NO RESULT"
+        )
+
+        print(f"\n{item['question_id']}")
+        print(f"Question: {question}")
+        print(f"Answerable: {answerable}")
+        print(f"Top retrieved: {top_chunk}")
+
+        if not answerable:
+            print(
+                "Evaluation: UNANSWERABLE — "
+                "excluded from retrieval and "
+                "chunking metrics."
+            )
+            continue
+
         evidence_text = item["evidence_text"]
 
         ground_truth = resolve_ground_truth(
@@ -80,11 +106,6 @@ def evaluate_strategy(
 
         relevant_chunk_ids = (
             ground_truth.relevant_chunk_ids
-        )
-
-        results = retriever.search(
-            question,
-            top_k=3,
         )
 
         recall_1 = recall_at_k(
@@ -126,15 +147,6 @@ def evaluate_strategy(
             chunking_diagnosis.diagnosis.value
         ] += 1
 
-        top_chunk = (
-            results[0].chunk.chunk_id
-            if results
-            else "NO RESULT"
-        )
-
-        print(f"\n{item['question_id']}")
-        print(f"Question: {question}")
-
         print(
             f"Evidence coverage: "
             f"{ground_truth.max_coverage:.1%}"
@@ -144,8 +156,6 @@ def evaluate_strategy(
             "Resolved relevant chunks: "
             + ", ".join(relevant_chunk_ids)
         )
-
-        print(f"Top retrieved: {top_chunk}")
 
         print(
             f"Retrieval diagnosis: "

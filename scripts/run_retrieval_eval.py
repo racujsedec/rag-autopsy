@@ -56,6 +56,37 @@ def main():
 
     for item in questions:
         question = item["question"]
+        answerable = item.get("answerable", True)
+
+        results = retriever.search(
+            query=question,
+            top_k=3,
+        )
+
+        print(f"\n{item['question_id']}")
+        print(f"Question: {question}")
+        print(f"Answerable: {answerable}")
+
+        if not answerable:
+            print("\nTop results:")
+
+            if not results:
+                print("  No matching chunks retrieved.")
+
+            for rank, result in enumerate(results, start=1):
+                print(
+                    f"  #{rank} "
+                    f"{result.chunk.chunk_id} "
+                    f"(score={result.score:.4f})"
+                )
+
+            print(
+                "\nEvaluation: UNANSWERABLE — "
+                "excluded from retrieval metrics "
+                "and retrieval diagnosis."
+            )
+            continue
+
         evidence_text = item["evidence_text"]
 
         ground_truth = resolve_ground_truth(
@@ -64,11 +95,6 @@ def main():
         )
 
         relevant_chunk_ids = ground_truth.relevant_chunk_ids
-
-        results = retriever.search(
-            query=question,
-            top_k=3,
-        )
 
         recall_1 = recall_at_k(
             results,
@@ -97,8 +123,6 @@ def main():
         reciprocal_rank_scores.append(rr)
         diagnoses.append(autopsy.diagnosis.value)
 
-        print(f"\n{item['question_id']}")
-        print(f"Question: {question}")
         print(
             f"Relevant chunks: "
             f"{', '.join(relevant_chunk_ids)}"
