@@ -143,9 +143,41 @@ def run_benchmark_retrieval(
             top_k=top_k,
         )
 
+    if relevant_chunk_ids:
+        from rag_autopsy.diagnostics.autopsy import (
+            diagnose_retrieval,
+        )
+
+        retrieval_diagnosis = diagnose_retrieval(
+            results=results,
+            relevant_chunk_ids=list(
+                relevant_chunk_ids
+            ),
+        )
+
+        diagnosis_lines = [
+            (
+                "PRIMARY RETRIEVAL DIAGNOSIS: "
+                f"{retrieval_diagnosis.diagnosis.value}"
+            ),
+            retrieval_diagnosis.explanation,
+        ]
+    else:
+        diagnosis_lines = [
+            "PRIMARY RETRIEVAL DIAGNOSIS: NOT_APPLICABLE",
+            (
+                "This benchmark question is marked "
+                "unanswerable, so no relevant chunk "
+                "is expected."
+            ),
+        ]
+
     lines = [
         f"Question ID: {question_id}",
         f"Question: {item['question']}",
+        "",
+        *diagnosis_lines,
+        "",
         "Relevant chunks: "
         + (
             ", ".join(
