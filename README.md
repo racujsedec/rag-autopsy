@@ -62,6 +62,9 @@ RAG Autopsy currently includes:
 - Recall@1, Recall@3, and MRR evaluation
 - retrieval, ranking, chunk-boundary, and context-loss diagnosis
 - previous-chunk context enrichment
+- PostgreSQL + pgvector persistent vector retrieval
+- separate canonical and retrieval-context storage
+- reproducible pgvector schema, indexing, and parity benchmark
 - automated unit tests
 
 The current focus is retrieval quality and failure diagnosis before LLM generation.
@@ -112,6 +115,46 @@ Reproduce it with:
 
 `python scripts/compare_context_enrichment.py`
 
+## PostgreSQL + pgvector
+
+RAG Autopsy supports persistent semantic retrieval with PostgreSQL and pgvector.
+
+Canonical chunk text is stored separately from the context-enriched text used to create embeddings:
+
+```text
+canonical paragraph        -> text
+previous + current         -> retrieval_text
+retrieval_text             -> vector(384) embedding
+```
+
+This preserves clean chunk text for future citations and generation while allowing richer retrieval context.
+
+### Database setup
+
+```bash
+pip install -e ".[dev,postgres]"
+createdb rag_autopsy
+psql -d rag_autopsy -f sql/pgvector_schema.sql
+python scripts/index_pgvector.py
+```
+
+A different database connection can be supplied with `RAG_AUTOPSY_DATABASE_URL`.
+
+### Contextual pgvector parity
+
+| Retriever | Recall@1 | Recall@3 | MRR |
+|---|---:|---:|---:|
+| In-memory contextual | 83.3% | 100.0% | 0.917 |
+| PostgreSQL pgvector | 83.3% | 100.0% | 0.917 |
+
+Across all 36 answerable Benchmark v1 questions, the complete ordered top-3 rankings produced **0 mismatches** between contextual in-memory semantic retrieval and contextual PostgreSQL pgvector retrieval.
+
+Reproduce the comparison with:
+
+```bash
+python scripts/compare_pgvector.py
+```
+
 ## Roadmap
 
 ### Phase 1 — Foundations
@@ -133,6 +176,7 @@ Reproduce it with:
 - [x] hybrid search
 - [x] reranking
 - [x] context-enrichment experiment
+- [x] PostgreSQL + pgvector persistent retrieval
 - [ ] experiment tracking
 
 ### Phase 4 — Generation
