@@ -172,11 +172,42 @@ def run_benchmark_retrieval(
             ),
         ]
 
+    if relevant_chunk_ids:
+        from rag_autopsy.diagnostics.autopsy import (
+            diagnose_context,
+        )
+
+        context_diagnosis = diagnose_context(
+            question=item["question"],
+            chunks=chunks,
+            ground_truth=ground_truth,
+            retrieval_results=results,
+        )
+
+        context_lines = [
+            (
+                "CONTEXT DIAGNOSIS: "
+                f"{context_diagnosis.diagnosis.value}"
+            ),
+            context_diagnosis.explanation,
+        ]
+    else:
+        context_lines = [
+            "CONTEXT DIAGNOSIS: NOT_APPLICABLE",
+            (
+                "This benchmark question is marked "
+                "unanswerable, so context-loss analysis "
+                "is not applicable."
+            ),
+        ]
+
     lines = [
         f"Question ID: {question_id}",
         f"Question: {item['question']}",
         "",
         *diagnosis_lines,
+        "",
+        *context_lines,
         "",
         "Relevant chunks: "
         + (
