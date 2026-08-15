@@ -53,6 +53,7 @@ function App() {
   const [questions, setQuestions] = useState<BenchmarkQuestion[]>([])
   const [selectedId, setSelectedId] = useState('q031')
   const [generate, setGenerate] = useState(false)
+  const [topK, setTopK] = useState(3)
   const [loadingQuestions, setLoadingQuestions] = useState(true)
   const [questionError, setQuestionError] = useState('')
 
@@ -119,7 +120,7 @@ function App() {
         body: JSON.stringify({
           question_id: selectedId,
           generate,
-          top_k: 3,
+          top_k: topK,
         }),
       })
 
@@ -276,7 +277,24 @@ function App() {
               </p>
             </div>
 
-            <span className="top-k">3</span>
+            <input
+              className="top-k-input"
+              type="number"
+              min="1"
+              max="10"
+              value={topK}
+              disabled={running}
+              onChange={(event) => {
+                const value = Number(event.target.value)
+
+                setTopK(
+                  Number.isFinite(value)
+                    ? Math.min(10, Math.max(1, value))
+                    : 3,
+                )
+                setResult(null)
+              }}
+            />
           </div>
 
           <button
@@ -431,7 +449,7 @@ function App() {
 
                 <div>
                   <span>Top K</span>
-                  <strong>3</strong>
+                  <strong>{topK}</strong>
                 </div>
               </div>
 
