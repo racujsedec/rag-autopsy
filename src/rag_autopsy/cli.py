@@ -18,10 +18,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="Run a RAG autopsy for a question.",
     )
 
-    autopsy_parser.add_argument(
+    question_group = (
+        autopsy_parser.add_mutually_exclusive_group(
+            required=True
+        )
+    )
+
+    question_group.add_argument(
         "--question",
-        required=True,
         help="Question to analyze.",
+    )
+
+    question_group.add_argument(
+        "--question-id",
+        help="Benchmark question ID to analyze.",
     )
 
     autopsy_parser.add_argument(
@@ -46,12 +56,19 @@ def main(
     args = parser.parse_args(argv)
 
     if args.command == "autopsy":
-        print(
-            f"Question: {args.question}"
-        )
+        if args.question_id:
+            print(
+                f"Question ID: {args.question_id}"
+            )
+        else:
+            print(
+                f"Question: {args.question}"
+            )
+
         print(
             f"Top-k: {args.top_k}"
         )
+
         return 0
 
     parser.print_help()

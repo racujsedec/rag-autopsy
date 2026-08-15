@@ -80,3 +80,28 @@ def test_autopsy_help_lists_question_option(
 
     assert "--question" in output
     assert "--top-k" in output
+
+
+def test_autopsy_command_accepts_question_id(
+    capsys,
+) -> None:
+    exit_code = main(
+        [
+            "autopsy",
+            "--question-id",
+            "q031",
+        ]
+    )
+
+    assert exit_code == 0
+
+    output = capsys.readouterr().out
+
+    assert "q031" in output
+
+
+def test_autopsy_requires_question_or_question_id() -> None:
+    with pytest.raises(SystemExit) as exc_info:
+        main(["autopsy"])
+
+    assert exc_info.value.code == 2
