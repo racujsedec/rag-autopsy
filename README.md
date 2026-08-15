@@ -51,16 +51,20 @@ LLM Generation
 Evaluation + Failure Diagnosis
 ```
 
-## Phase 1
+## Current Capabilities
 
-Current milestone:
+RAG Autopsy currently includes:
 
-- repository structure
-- Python package
-- small evaluation corpus
-- baseline fixed-size chunker
-- unit tests
-- no LLM dependency
+- fixed-size and paragraph-aware chunking
+- BM25, semantic, hybrid RRF, and cross-encoder reranking
+- evidence-based ground truth
+- answerable and unanswerable benchmark questions
+- Recall@1, Recall@3, and MRR evaluation
+- retrieval, ranking, chunk-boundary, and context-loss diagnosis
+- previous-chunk context enrichment
+- automated unit tests
+
+The current focus is retrieval quality and failure diagnosis before LLM generation.
 
 ## Quick Start
 
@@ -80,6 +84,34 @@ pip install -e ".[dev]"
 pytest
 ```
 
+## Benchmark v1
+
+Benchmark v1 contains **24 documents and 42 questions**: 36 answerable and 6 unanswerable.
+
+### Chunking comparison
+
+| Strategy | Recall@1 | Recall@3 | MRR | Evidence coverage |
+|---|---:|---:|---:|---:|
+| Fixed-size | 66.7% | 88.9% | 0.750 | 94.9% |
+| Paragraph-aware | **80.6%** | **91.7%** | **0.861** | **99.3%** |
+
+The autopsy engine also identified **CHUNK_CONTEXT_LOSS**: cases where the answer evidence is completely preserved, but identifying query context is separated into an adjacent chunk.
+
+### Context enrichment
+
+`PreviousChunkContextEnricher` adds the previous chunk as retrieval context while preserving the current chunk ID and boundaries.
+
+| Configuration | Recall@1 | Recall@3 | MRR |
+|---|---:|---:|---:|
+| Semantic original | 83.3% | 88.9% | 0.861 |
+| **Semantic + previous-chunk context** | **83.3%** | **100.0%** | **0.917** |
+
+Four previous semantic retrieval misses moved into the top 3 with no rank regressions in this comparison.
+
+Reproduce it with:
+
+`python scripts/compare_context_enrichment.py`
+
 ## Roadmap
 
 ### Phase 1 — Foundations
@@ -89,16 +121,18 @@ pytest
 - [x] basic tests
 
 ### Phase 2 — Retrieval Baselines
-- [ ] lexical/BM25 retrieval
-- [ ] embedding retrieval
-- [ ] retrieval evaluation dataset
-- [ ] Recall@K / MRR / nDCG
+- [x] lexical/BM25 retrieval
+- [x] embedding retrieval
+- [x] retrieval evaluation dataset
+- [x] Recall@K / MRR
+- [ ] nDCG
 
 ### Phase 3 — Retrieval Quality
 - [ ] semantic chunking
 - [ ] section-aware chunking
-- [ ] hybrid search
-- [ ] reranking
+- [x] hybrid search
+- [x] reranking
+- [x] context-enrichment experiment
 - [ ] experiment tracking
 
 ### Phase 4 — Generation
@@ -108,11 +142,12 @@ pytest
 - [ ] answer-level evaluation
 
 ### Phase 5 — Autopsy Engine
-- [ ] failure taxonomy
-- [ ] automatic failure classification
-- [ ] chunking failure detection
-- [ ] retrieval failure detection
-- [ ] ranking failure detection
+- [x] retrieval failure diagnosis
+- [x] ranking failure diagnosis
+- [x] reranker improvement/regression diagnosis
+- [x] chunk-boundary diagnosis
+- [x] chunk context-loss diagnosis
+- [ ] generation failure diagnosis
 - [ ] hallucination / citation mismatch detection
 
 ### Phase 6 — Productization
