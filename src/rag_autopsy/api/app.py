@@ -24,6 +24,40 @@ class AutopsyRequest(BaseModel):
     )
 
 
+class RetrievedChunk(BaseModel):
+    rank: int
+    chunk_id: str
+    score: float
+
+
+class GenerationResponse(BaseModel):
+    answer: str
+    cited_chunk_ids: list[str]
+    invalid_citation_ids: list[str]
+
+
+class RetrievalAutopsyResponse(BaseModel):
+    question_id: str
+    question: str
+    diagnosis: str
+    relevant_chunk_ids: list[str]
+    retrieved_chunks: list[RetrievedChunk]
+
+
+class FullAutopsyResponse(BaseModel):
+    question_id: str
+    question: str
+    primary_diagnosis: str
+    primary_explanation: str
+    retrieval_diagnosis: str
+    generation: GenerationResponse
+    citation_validity: str
+    citation_support: str
+    citation_coverage: str
+    citation_coverage_score: float
+    retrieved_chunks: list[RetrievedChunk]
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {
@@ -304,10 +338,19 @@ def run_benchmark_autopsy_data(
     }
 
 
-@app.post("/autopsy")
+@app.post(
+    "/autopsy",
+    response_model=(
+        FullAutopsyResponse
+        | RetrievalAutopsyResponse
+    ),
+)
 def autopsy(
     request: AutopsyRequest,
-) -> dict[str, object]:
+) -> (
+    FullAutopsyResponse
+    | RetrievalAutopsyResponse
+):
     try:
         if request.generate:
             return run_benchmark_autopsy_data(

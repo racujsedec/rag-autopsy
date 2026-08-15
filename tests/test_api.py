@@ -130,6 +130,11 @@ def test_autopsy_endpoint_generate_runs_full_pipeline(
             "question_id": "q031",
             "question": "What happened?",
             "primary_diagnosis": "RANKING_FAILURE",
+            "primary_explanation": (
+                "Relevant evidence was retrieved "
+                "below rank one."
+            ),
+            "retrieval_diagnosis": "RANKING_FAILURE",
             "generation": {
                 "answer": (
                     "Reopen rates declined "
@@ -235,3 +240,18 @@ def test_autopsy_endpoint_external_failure_returns_503(
     assert response.json() == {
         "detail": "RAG Autopsy service is temporarily unavailable."
     }
+
+
+def test_autopsy_openapi_has_response_models() -> None:
+    response = client.get("/openapi.json")
+
+    assert response.status_code == 200
+
+    schemas = response.json()[
+        "components"
+    ]["schemas"]
+
+    assert "RetrievedChunk" in schemas
+    assert "GenerationResponse" in schemas
+    assert "RetrievalAutopsyResponse" in schemas
+    assert "FullAutopsyResponse" in schemas
