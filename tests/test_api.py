@@ -114,3 +114,63 @@ def test_autopsy_endpoint_returns_retrieval_result(
     assert body["retrieved_chunks"][1]["chunk_id"] == (
         "doc::paragraph-0001"
     )
+
+
+def test_autopsy_endpoint_generate_runs_full_pipeline(
+    monkeypatch,
+) -> None:
+    def fake_run_full_autopsy(
+        question_id: str,
+        top_k: int,
+    ) -> dict:
+        assert question_id == "q031"
+        assert top_k == 3
+
+        return {
+            "question_id": "q031",
+            "question": "What happened?",
+            "primary_diagnosis": "RANKING_FAILURE",
+            "generation": {
+                "answer": (
+                    "Reopen rates declined "
+                    "[doc::paragraph-0001]."
+                ),
+                "cited_chunk_ids": [
+                    "doc::paragraph-0001",
+                ],
+                "invalid_citation_ids": [],
+            },
+            "citation_validity": "VALID_CITATION",
+            "citation_support": "SUPPORTED_BY_TEXT",
+            "citation_coverage": "COMPLETE_CITATION_COVERAGE",
+            "citation_coverage_score": 1.0,
+            "retrieved_chunks": [],
+        }
+
+    monkeypatch.setattr(
+        api_module,
+        "run_benchmark_autopsy_data",
+        fake_run_full_autopsy,
+        raising=False,
+    )
+
+    response = client.post(
+        "/autopsy",
+        json={
+            "question_id": "q031",
+            "generate": True,
+            "top_k": 3,
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["primary_diagnosis"] == "RANKING_FAILURE"
+    assert body["citation_validity"] == "VALID_CITATION"
+    assert body["citation_support"] == "SUPPORTED_BY_TEXT"
+    assert (
+        body["citation_coverage"]
+        == "COMPLETE_CITATION_COVERAGE"
+    )
