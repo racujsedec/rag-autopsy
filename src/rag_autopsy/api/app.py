@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI(
     title="RAG Autopsy",
@@ -18,7 +18,10 @@ app = FastAPI(
 class AutopsyRequest(BaseModel):
     question_id: str
     generate: bool = False
-    top_k: int = 3
+    top_k: int = Field(
+        default=3,
+        ge=1,
+    )
 
 
 @app.get("/health")

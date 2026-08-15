@@ -174,3 +174,32 @@ def test_autopsy_endpoint_generate_runs_full_pipeline(
         body["citation_coverage"]
         == "COMPLETE_CITATION_COVERAGE"
     )
+
+
+def test_autopsy_endpoint_rejects_nonpositive_top_k() -> None:
+    response = client.post(
+        "/autopsy",
+        json={
+            "question_id": "q031",
+            "generate": False,
+            "top_k": 0,
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_autopsy_endpoint_unknown_question_id_returns_404() -> None:
+    response = client.post(
+        "/autopsy",
+        json={
+            "question_id": "q999",
+            "generate": False,
+            "top_k": 3,
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Unknown benchmark question ID: q999"
+    }
