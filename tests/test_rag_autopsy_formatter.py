@@ -126,3 +126,15 @@ def test_formatter_includes_ranked_retrieved_chunks() -> None:
         in formatted
     )
     assert "score=0.9000" in formatted
+
+
+def test_formatter_includes_citation_coverage() -> None:
+    formatted = format_rag_autopsy_report(
+        build_success_report()
+    )
+
+    assert (
+        "Citation coverage: COMPLETE_CITATION_COVERAGE"
+        in formatted
+    )
+    assert "Coverage: 100.0%" in formatted

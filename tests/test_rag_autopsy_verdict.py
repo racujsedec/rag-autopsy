@@ -237,3 +237,34 @@ def test_clean_pipeline_is_success() -> None:
         verdict.diagnosis
         == RAGVerdictType.SUCCESS
     )
+
+
+def test_partial_citation_coverage_is_reported() -> None:
+    report = build_report(
+        retrieval_results=[
+            make_result(
+                "doc::paragraph-0001",
+                (
+                    "Resolution codes became mandatory. "
+                    "Reopen rates declined."
+                ),
+            )
+        ],
+        answer=(
+            "Resolution codes became mandatory. "
+            "Reopen rates declined "
+            "[doc::paragraph-0001]."
+        ),
+        relevant_chunk_ids=[
+            "doc::paragraph-0001",
+        ],
+    )
+
+    verdict = diagnose_rag_verdict(
+        report
+    )
+
+    assert (
+        verdict.diagnosis
+        == RAGVerdictType.PARTIAL_CITATION_COVERAGE
+    )

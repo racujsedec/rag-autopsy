@@ -228,3 +228,30 @@ def test_report_includes_primary_verdict() -> None:
         report.verdict.diagnosis
         == RAGVerdictType.SUCCESS
     )
+
+
+def test_report_includes_citation_coverage() -> None:
+    retrieval_results = [
+        make_result(
+            "doc::paragraph-0001",
+            "Reopen rates declined.",
+        )
+    ]
+
+    report = run_rag_autopsy(
+        question="What happened?",
+        retriever=FakeRetriever(
+            retrieval_results
+        ),
+        generator=GroundedGenerator(
+            llm=FakeLLM(
+                "Reopen rates declined "
+                "[doc::paragraph-0001]."
+            )
+        ),
+        relevant_chunk_ids=[
+            "doc::paragraph-0001",
+        ],
+    )
+
+    assert report.citation_coverage.coverage == 1.0

@@ -17,6 +17,11 @@ from .citation import (
     CitationDiagnosisType,
     diagnose_citations,
 )
+from .citation_coverage import (
+    CitationCoverageAutopsyResult,
+    CitationCoverageDiagnosisType,
+    diagnose_citation_coverage,
+)
 from .citation_support import (
     CitationSupportAutopsyResult,
     CitationSupportDiagnosisType,
@@ -33,6 +38,8 @@ __all__ = [
     "ChunkingAutopsyResult",
     "ChunkingDiagnosisType",
     "CitationAutopsyResult",
+    "CitationCoverageAutopsyResult",
+    "CitationCoverageDiagnosisType",
     "CitationDiagnosisType",
     "CitationSupportAutopsyResult",
     "CitationSupportDiagnosisType",
@@ -46,6 +53,7 @@ __all__ = [
     "StageComparisonType",
     "compare_reranking_stages",
     "diagnose_chunking",
+    "diagnose_citation_coverage",
     "diagnose_citation_support",
     "diagnose_citations",
     "diagnose_context",

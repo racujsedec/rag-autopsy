@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from .autopsy import DiagnosisType
 from .citation import CitationDiagnosisType
+from .citation_coverage import CitationCoverageDiagnosisType
 from .citation_support import CitationSupportDiagnosisType
 
 if TYPE_CHECKING:
@@ -16,6 +17,7 @@ class RAGVerdictType(str, Enum):
     INVALID_CITATION = "INVALID_CITATION"
     LOW_TEXTUAL_SUPPORT = "LOW_TEXTUAL_SUPPORT"
     NO_CITATION = "NO_CITATION"
+    PARTIAL_CITATION_COVERAGE = "PARTIAL_CITATION_COVERAGE"
     SUCCESS = "SUCCESS"
 
 
@@ -29,6 +31,7 @@ def diagnose_rag_stages(
     retrieval,
     citations,
     citation_support,
+    citation_coverage,
 ) -> RAGVerdictResult:
     if retrieval.diagnosis == DiagnosisType.RETRIEVAL_MISS:
         return RAGVerdictResult(
@@ -84,6 +87,20 @@ def diagnose_rag_stages(
             ),
         )
 
+    if (
+        citation_coverage.diagnosis
+        == CitationCoverageDiagnosisType.PARTIAL_CITATION_COVERAGE
+    ):
+        return RAGVerdictResult(
+            diagnosis=(
+                RAGVerdictType.PARTIAL_CITATION_COVERAGE
+            ),
+            explanation=(
+                "Only some generated claims have attached "
+                "citations to retrieved evidence."
+            ),
+        )
+
     return RAGVerdictResult(
         diagnosis=RAGVerdictType.SUCCESS,
         explanation=(
@@ -100,4 +117,5 @@ def diagnose_rag_verdict(
         retrieval=report.retrieval,
         citations=report.citations,
         citation_support=report.citation_support,
+        citation_coverage=report.citation_coverage,
     )

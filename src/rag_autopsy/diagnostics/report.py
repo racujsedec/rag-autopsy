@@ -14,6 +14,10 @@ from .citation import (
     CitationAutopsyResult,
     diagnose_citations,
 )
+from .citation_coverage import (
+    CitationCoverageAutopsyResult,
+    diagnose_citation_coverage,
+)
 from .citation_support import (
     CitationSupportAutopsyResult,
     diagnose_citation_support,
@@ -32,6 +36,7 @@ class RAGAutopsyReport:
     generation: GroundedGenerationResult
     citations: CitationAutopsyResult
     citation_support: CitationSupportAutopsyResult
+    citation_coverage: CitationCoverageAutopsyResult
     verdict: RAGVerdictResult
 
 
@@ -68,10 +73,17 @@ def run_rag_autopsy(
         )
     )
 
+    citation_coverage_diagnosis = (
+        diagnose_citation_coverage(
+            generation_result
+        )
+    )
+
     verdict = diagnose_rag_stages(
         retrieval=retrieval_diagnosis,
         citations=citation_diagnosis,
         citation_support=citation_support_diagnosis,
+        citation_coverage=citation_coverage_diagnosis,
     )
 
     return RAGAutopsyReport(
@@ -84,6 +96,9 @@ def run_rag_autopsy(
         citations=citation_diagnosis,
         citation_support=(
             citation_support_diagnosis
+        ),
+        citation_coverage=(
+            citation_coverage_diagnosis
         ),
         verdict=verdict,
     )

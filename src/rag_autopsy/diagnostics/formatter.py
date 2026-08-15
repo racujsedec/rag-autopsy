@@ -40,6 +40,16 @@ def format_rag_autopsy_report(
         ),
         report.citation_support.explanation,
         "",
+        (
+            "Citation coverage: "
+            f"{report.citation_coverage.diagnosis.value}"
+        ),
+        (
+            "Coverage: "
+            f"{report.citation_coverage.coverage:.1%}"
+        ),
+        report.citation_coverage.explanation,
+        "",
         "Retrieved chunks:",
     ]
 
