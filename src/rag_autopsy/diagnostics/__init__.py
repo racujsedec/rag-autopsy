@@ -39,6 +39,8 @@ __all__ = [
     "ContextDiagnosisType",
     "DiagnosisType",
     "RAGAutopsyReport",
+    "RAGVerdictResult",
+    "RAGVerdictType",
     "StageComparisonResult",
     "StageComparisonType",
     "compare_reranking_stages",
@@ -46,6 +48,13 @@ __all__ = [
     "diagnose_citation_support",
     "diagnose_citations",
     "diagnose_context",
+    "diagnose_rag_verdict",
     "diagnose_retrieval",
     "run_rag_autopsy",
 ]
+
+from .verdict import (
+    RAGVerdictResult,
+    RAGVerdictType,
+    diagnose_rag_verdict,
+)
