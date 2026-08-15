@@ -69,7 +69,13 @@ def _claim_before_citation(
     if position == -1:
         return ""
 
-    prefix = answer[:position]
+    prefix = answer[:position].rstrip()
+
+    prefix = re.sub(
+        r"[.!?]+$",
+        "",
+        prefix,
+    ).rstrip()
 
     boundaries = [
         prefix.rfind("."),

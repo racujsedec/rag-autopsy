@@ -144,3 +144,34 @@ def test_one_unsupported_citation_fails_multiple_claims() -> None:
     assert result.unsupported_citation_ids == (
         "doc::paragraph-0002",
     )
+
+
+def test_supported_claim_with_citation_after_period() -> None:
+    result = diagnose_citation_support(
+        generation_result=make_generation_result(
+            answer=(
+                "Reopen rates declined over the "
+                "next two reporting periods. "
+                "[doc::paragraph-0001]"
+            ),
+            cited_chunk_ids=(
+                "doc::paragraph-0001",
+            ),
+        ),
+        retrieval_results=[
+            make_search_result(
+                "doc::paragraph-0001",
+                (
+                    "Reopen rates declined over the "
+                    "next two reporting periods."
+                ),
+            )
+        ],
+    )
+
+    assert (
+        result.diagnosis
+        == CitationSupportDiagnosisType.SUPPORTED_BY_TEXT
+    )
+
+    assert result.unsupported_citation_ids == ()
