@@ -174,6 +174,37 @@ def run_benchmark_retrieval(
 
     if relevant_chunk_ids:
         from rag_autopsy.diagnostics.autopsy import (
+            diagnose_chunking,
+        )
+
+        chunking_diagnosis = diagnose_chunking(
+            ground_truth=ground_truth,
+            retrieval_results=results,
+        )
+
+        chunking_lines = [
+            (
+                "CHUNKING DIAGNOSIS: "
+                f"{chunking_diagnosis.diagnosis.value}"
+            ),
+            (
+                "Evidence coverage: "
+                f"{chunking_diagnosis.evidence_coverage:.1%}"
+            ),
+            chunking_diagnosis.explanation,
+        ]
+    else:
+        chunking_lines = [
+            "CHUNKING DIAGNOSIS: NOT_APPLICABLE",
+            (
+                "This benchmark question is marked "
+                "unanswerable, so chunking analysis "
+                "is not applicable."
+            ),
+        ]
+
+    if relevant_chunk_ids:
+        from rag_autopsy.diagnostics.autopsy import (
             diagnose_context,
         )
 
@@ -206,6 +237,8 @@ def run_benchmark_retrieval(
         f"Question: {item['question']}",
         "",
         *diagnosis_lines,
+        "",
+        *chunking_lines,
         "",
         *context_lines,
         "",
