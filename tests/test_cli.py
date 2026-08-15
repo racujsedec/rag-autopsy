@@ -36,3 +36,47 @@ def test_no_command_displays_help(
 
     assert "usage:" in output
     assert "rag-autopsy" in output
+
+
+def test_autopsy_command_accepts_question(
+    capsys,
+) -> None:
+    exit_code = main(
+        [
+            "autopsy",
+            "--question",
+            "What happened?",
+        ]
+    )
+
+    assert exit_code == 0
+
+    output = capsys.readouterr().out
+
+    assert "What happened?" in output
+
+
+def test_autopsy_command_requires_question() -> None:
+    with pytest.raises(SystemExit) as exc_info:
+        main(["autopsy"])
+
+    assert exc_info.value.code == 2
+
+
+def test_autopsy_help_lists_question_option(
+    capsys,
+) -> None:
+    with pytest.raises(SystemExit) as exc_info:
+        main(
+            [
+                "autopsy",
+                "--help",
+            ]
+        )
+
+    assert exc_info.value.code == 0
+
+    output = capsys.readouterr().out
+
+    assert "--question" in output
+    assert "--top-k" in output
