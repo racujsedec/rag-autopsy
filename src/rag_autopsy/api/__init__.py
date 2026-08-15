@@ -1,1 +1,5 @@
-"""Reserved for a later RAG Autopsy phase."""
+from .app import app
+
+__all__ = [
+    "app",
+]
