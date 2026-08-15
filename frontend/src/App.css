@@ -1,0 +1,390 @@
+* {
+  box-sizing: border-box;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding-bottom: 56px;
+}
+
+.topbar {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.topbar > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.brand-name {
+  color: #111827;
+  font-weight: 700;
+}
+
+.status-pill,
+.answerable-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pill {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.hero-section {
+  padding: 64px 0 44px;
+  max-width: 760px;
+}
+
+.eyebrow,
+.section-label {
+  margin: 0;
+  color: #6d28d9;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.hero-section h1 {
+  margin: 10px 0 16px;
+  color: #111827;
+  font-size: clamp(38px, 6vw, 60px);
+  line-height: 1.03;
+  letter-spacing: -0.045em;
+}
+
+.hero-copy {
+  margin: 0;
+  max-width: 650px;
+  color: #6b7280;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 24px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.05);
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 26px;
+}
+
+.section-heading h2 {
+  margin: 5px 0 0;
+  color: #111827;
+  font-size: 24px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+}
+
+.question-preview {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.question-preview p {
+  margin: 0;
+  color: #374151;
+  line-height: 1.55;
+}
+
+.question-id {
+  color: #6d28d9;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.answerable-badge {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.setting-row strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+}
+
+.setting-row p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.top-k {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #f3f4f6;
+  color: #111827;
+  font-weight: 800;
+}
+
+.switch {
+  position: relative;
+  width: 46px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  border-radius: 999px;
+  background: #d1d5db;
+  transition: 0.2s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: 0.2s;
+}
+
+.switch input:checked + .slider {
+  background: #6d28d9;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
+.run-button {
+  width: 100%;
+  margin-top: 24px;
+  border: 0;
+  border-radius: 11px;
+  padding: 13px 18px;
+  background: #111827;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.run-button:hover {
+  background: #1f2937;
+}
+
+.results-panel {
+  min-height: 520px;
+}
+
+.empty-state {
+  min-height: 370px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  background: #f5f3ff;
+  color: #7c3aed;
+  font-size: 30px;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  color: #111827;
+}
+
+.empty-state p {
+  margin: 0;
+  max-width: 390px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.diagnosis-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.diagnosis-badge {
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #ffedd5;
+  color: #9a3412;
+  font-size: 12px;
+}
+
+.diagnosis-copy {
+  margin: 22px 0;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-grid div {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.metric-grid span,
+.metric-grid strong {
+  display: block;
+}
+
+.metric-grid span {
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.metric-grid strong {
+  color: #111827;
+  font-size: 14px;
+}
+
+.connection-note {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f5f3ff;
+  color: #5b21b6;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+  padding: 18px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.pipeline span {
+  padding: 7px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.pipeline b {
+  color: #9ca3af;
+}
+
+@media (max-width: 820px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-section {
+    padding-top: 42px;
+  }
+
+  .app-shell {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .card {
+    padding: 22px;
+  }
+}
