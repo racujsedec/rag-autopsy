@@ -255,3 +255,16 @@ def test_autopsy_openapi_has_response_models() -> None:
     assert "GenerationResponse" in schemas
     assert "RetrievalAutopsyResponse" in schemas
     assert "FullAutopsyResponse" in schemas
+
+
+def test_questions_endpoint_returns_benchmark_questions() -> None:
+    response = client.get("/questions")
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert len(body) > 0
+    assert body[0]["question_id"]
+    assert body[0]["question"]
+    assert "answerable" in body[0]

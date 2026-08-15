@@ -24,6 +24,12 @@ class AutopsyRequest(BaseModel):
     )
 
 
+class BenchmarkQuestionSummary(BaseModel):
+    question_id: str
+    question: str
+    answerable: bool
+
+
 class RetrievedChunk(BaseModel):
     rank: int
     chunk_id: str
@@ -64,6 +70,24 @@ def health() -> dict[str, str]:
         "status": "ok",
         "service": "rag-autopsy",
     }
+
+
+@app.get(
+    "/questions",
+    response_model=list[BenchmarkQuestionSummary],
+)
+def questions() -> list[BenchmarkQuestionSummary]:
+    return [
+        BenchmarkQuestionSummary(
+            question_id=item["question_id"],
+            question=item["question"],
+            answerable=item.get(
+                "answerable",
+                True,
+            ),
+        )
+        for item in load_benchmark_questions()
+    ]
 
 
 def load_benchmark_chunks():
