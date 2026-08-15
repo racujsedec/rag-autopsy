@@ -11,7 +11,7 @@ from .retrieval_metrics import (
 __all__ = [
     "GroundTruthResult",
     "evidence_coverage",
-    "resolve_ground_truth",
     "recall_at_k",
     "reciprocal_rank",
+    "resolve_ground_truth",
 ]

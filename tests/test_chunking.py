@@ -1,6 +1,8 @@
 import pytest
+
 from rag_autopsy.chunking import FixedSizeChunker
 from rag_autopsy.config import ChunkingConfig
+
 
 def test_chunker_creates_overlapping_chunks() -> None:
     text = " ".join(f"word{i}" for i in range(25))

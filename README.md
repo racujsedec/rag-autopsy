@@ -159,47 +159,68 @@ python scripts/compare_pgvector.py
 
 ### Phase 1 — Foundations
 - [x] repository structure
-- [x] baseline corpus
+- [x] benchmark corpus
 - [x] fixed-size chunking
-- [x] basic tests
+- [x] paragraph-aware chunking
+- [x] automated tests
 
 ### Phase 2 — Retrieval Baselines
-- [x] lexical/BM25 retrieval
-- [x] embedding retrieval
+- [x] BM25 retrieval
+- [x] semantic embedding retrieval
 - [x] retrieval evaluation dataset
-- [x] Recall@K / MRR
-- [ ] nDCG
+- [x] Recall@K and MRR
+- [x] hybrid RRF retrieval
+- [x] cross-encoder reranking
 
-### Phase 3 — Retrieval Quality
-- [ ] semantic chunking
-- [ ] section-aware chunking
-- [x] hybrid search
-- [x] reranking
-- [x] context-enrichment experiment
-- [x] PostgreSQL + pgvector persistent retrieval
-- [ ] experiment tracking
-
-### Phase 4 — Generation
-- [ ] LLM abstraction layer
-- [ ] grounded answer generation
-- [ ] citations
-- [ ] answer-level evaluation
-
-### Phase 5 — Autopsy Engine
-- [x] retrieval failure diagnosis
-- [x] ranking failure diagnosis
+### Phase 3 — Retrieval Diagnostics
+- [x] retrieval-miss diagnosis
+- [x] ranking-failure diagnosis
 - [x] reranker improvement/regression diagnosis
 - [x] chunk-boundary diagnosis
 - [x] chunk context-loss diagnosis
-- [ ] generation failure diagnosis
-- [ ] hallucination / citation mismatch detection
+- [x] previous-chunk context enrichment
+- [x] PostgreSQL + pgvector persistent retrieval
+- [x] in-memory / pgvector parity validation
+
+### Phase 4 — Grounded Generation
+- [x] LLM abstraction layer
+- [x] OpenAI Responses API adapter
+- [x] grounded answer generation
+- [x] chunk-ID citations
+- [x] citation validity diagnosis
+- [x] textual citation-support diagnosis
+- [x] claim-level citation coverage
+
+### Phase 5 — RAG Autopsy Engine
+- [x] end-to-end autopsy report
+- [x] stage-aware primary verdict
+- [x] human-readable report formatter
+- [x] CLI workflow
+- [x] answerable and unanswerable benchmark support
 
 ### Phase 6 — Productization
-- [ ] FastAPI
-- [ ] React UI
-- [ ] Docker
-- [ ] GitHub Actions
-- [ ] AWS deployment
+- [x] FastAPI service
+- [x] typed OpenAPI request/response schemas
+- [x] API validation and service-error handling
+- [x] benchmark question API
+- [x] React + TypeScript diagnostic UI
+- [x] configurable Top K
+- [x] retrieval-only browser workflow
+- [x] grounded-generation browser workflow
+- [ ] Docker packaging
+- [ ] CI/CD
+- [ ] hosted deployment
+
+### Possible future experiments
+
+These are intentionally outside the v1 completion scope:
+
+- nDCG and additional ranking metrics
+- semantic or section-aware chunking
+- experiment tracking
+- Docker deployment
+- GitHub Actions
+- hosted cloud deployment
 
 ## Engineering Principle
 

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+
 from rag_autopsy.config import ChunkingConfig
+
 
 @dataclass(frozen=True)
 class Chunk:
@@ -21,8 +23,9 @@ class FixedSizeChunker:
             return []
         chunks: list[Chunk] = []
         step = self.config.chunk_size - self.config.overlap
-        chunk_number = 0
-        for start in range(0, len(words), step):
+        for chunk_number, start in enumerate(
+            range(0, len(words), step)
+        ):
             end = min(start + self.config.chunk_size, len(words))
             chunk_words = words[start:end]
             if not chunk_words:
@@ -34,7 +37,6 @@ class FixedSizeChunker:
                 start_word=start,
                 end_word=end,
             ))
-            chunk_number += 1
             if end == len(words):
                 break
         return chunks

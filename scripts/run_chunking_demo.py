@@ -1,6 +1,8 @@
 from pathlib import Path
+
 from rag_autopsy.chunking import FixedSizeChunker
 from rag_autopsy.config import ChunkingConfig
+
 
 def main() -> None:
     raw_dir = Path("data/raw")
