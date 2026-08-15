@@ -268,3 +268,34 @@ def test_questions_endpoint_returns_benchmark_questions() -> None:
     assert body[0]["question_id"]
     assert body[0]["question"]
     assert "answerable" in body[0]
+
+
+def test_openapi_contains_api_examples() -> None:
+    response = client.get("/openapi.json")
+
+    assert response.status_code == 200
+
+    schemas = response.json()[
+        "components"
+    ]["schemas"]
+
+    assert (
+        schemas["AutopsyRequest"]["examples"][0][
+            "question_id"
+        ]
+        == "q031"
+    )
+
+    assert (
+        schemas["FullAutopsyResponse"]["examples"][0][
+            "primary_diagnosis"
+        ]
+        == "RANKING_FAILURE"
+    )
+
+    assert (
+        schemas["BenchmarkQuestionSummary"]["examples"][0][
+            "question_id"
+        ]
+        == "q001"
+    )

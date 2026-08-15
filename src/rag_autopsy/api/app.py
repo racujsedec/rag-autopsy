@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 app = FastAPI(
     title="RAG Autopsy",
@@ -16,6 +16,18 @@ app = FastAPI(
 
 
 class AutopsyRequest(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "question_id": "q031",
+                    "generate": True,
+                    "top_k": 3,
+                }
+            ]
+        }
+    )
+
     question_id: str
     generate: bool = False
     top_k: int = Field(
@@ -25,6 +37,21 @@ class AutopsyRequest(BaseModel):
 
 
 class BenchmarkQuestionSummary(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "question_id": "q001",
+                    "question": (
+                        "Why did Arcadia Components "
+                        "operating margin decline?"
+                    ),
+                    "answerable": True,
+                }
+            ]
+        }
+    )
+
     question_id: str
     question: str
     answerable: bool
@@ -43,6 +70,41 @@ class GenerationResponse(BaseModel):
 
 
 class RetrievalAutopsyResponse(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "question_id": "q031",
+                    "question": (
+                        "What service-desk changes did "
+                        "Vector Systems introduce, and "
+                        "what was the result?"
+                    ),
+                    "diagnosis": "RANKING_FAILURE",
+                    "relevant_chunk_ids": [
+                        "service_desk::paragraph-0001"
+                    ],
+                    "retrieved_chunks": [
+                        {
+                            "rank": 1,
+                            "chunk_id": (
+                                "service_desk::paragraph-0000"
+                            ),
+                            "score": 0.4601,
+                        },
+                        {
+                            "rank": 2,
+                            "chunk_id": (
+                                "service_desk::paragraph-0001"
+                            ),
+                            "score": 0.3897,
+                        },
+                    ],
+                }
+            ]
+        }
+    )
+
     question_id: str
     question: str
     diagnosis: str
@@ -51,6 +113,70 @@ class RetrievalAutopsyResponse(BaseModel):
 
 
 class FullAutopsyResponse(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "question_id": "q031",
+                    "question": (
+                        "What service-desk changes did "
+                        "Vector Systems introduce, and "
+                        "what was the result?"
+                    ),
+                    "primary_diagnosis": (
+                        "RANKING_FAILURE"
+                    ),
+                    "primary_explanation": (
+                        "Relevant evidence was retrieved "
+                        "but ranked below the first "
+                        "position."
+                    ),
+                    "retrieval_diagnosis": (
+                        "RANKING_FAILURE"
+                    ),
+                    "generation": {
+                        "answer": (
+                            "Ticket reopen rates declined "
+                            "after the service-desk "
+                            "changes. "
+                            "[service_desk::paragraph-0001]"
+                        ),
+                        "cited_chunk_ids": [
+                            "service_desk::paragraph-0001"
+                        ],
+                        "invalid_citation_ids": [],
+                    },
+                    "citation_validity": (
+                        "VALID_CITATION"
+                    ),
+                    "citation_support": (
+                        "SUPPORTED_BY_TEXT"
+                    ),
+                    "citation_coverage": (
+                        "PARTIAL_CITATION_COVERAGE"
+                    ),
+                    "citation_coverage_score": 0.25,
+                    "retrieved_chunks": [
+                        {
+                            "rank": 1,
+                            "chunk_id": (
+                                "service_desk::paragraph-0000"
+                            ),
+                            "score": 0.4601,
+                        },
+                        {
+                            "rank": 2,
+                            "chunk_id": (
+                                "service_desk::paragraph-0001"
+                            ),
+                            "score": 0.3897,
+                        },
+                    ],
+                }
+            ]
+        }
+    )
+
     question_id: str
     question: str
     primary_diagnosis: str
