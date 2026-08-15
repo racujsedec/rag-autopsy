@@ -160,3 +160,51 @@ def test_question_id_dispatches_to_benchmark_retrieval(
     output = capsys.readouterr().out
 
     assert "BENCHMARK RETRIEVAL COMPLETE" in output
+
+
+def test_generate_dispatches_to_full_rag_autopsy(
+    monkeypatch,
+    capsys,
+) -> None:
+    calls = []
+
+    def fake_run_benchmark_autopsy(
+        question_id,
+        top_k,
+    ):
+        calls.append(
+            (
+                question_id,
+                top_k,
+            )
+        )
+        return "FULL RAG AUTOPSY COMPLETE"
+
+    monkeypatch.setattr(
+        "rag_autopsy.cli.run_benchmark_autopsy",
+        fake_run_benchmark_autopsy,
+        raising=False,
+    )
+
+    exit_code = main(
+        [
+            "autopsy",
+            "--question-id",
+            "q031",
+            "--top-k",
+            "3",
+            "--generate",
+        ]
+    )
+
+    assert exit_code == 0
+    assert calls == [
+        (
+            "q031",
+            3,
+        )
+    ]
+
+    output = capsys.readouterr().out
+
+    assert "FULL RAG AUTOPSY COMPLETE" in output

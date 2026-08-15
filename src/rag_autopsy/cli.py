@@ -44,6 +44,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Number of retrieved chunks to inspect.",
     )
 
+    autopsy_parser.add_argument(
+        "--generate",
+        action="store_true",
+        help=(
+            "Generate a grounded answer and run "
+            "citation diagnostics."
+        ),
+    )
+
     return parser
 
 
@@ -270,6 +279,107 @@ def run_benchmark_retrieval(
     return "\n".join(lines)
 
 
+
+def run_benchmark_autopsy(
+    question_id: str,
+    top_k: int,
+) -> str:
+    import psycopg
+
+    from rag_autopsy.diagnostics.formatter import (
+        format_rag_autopsy_report,
+    )
+    from rag_autopsy.diagnostics.report import (
+        run_rag_autopsy,
+    )
+    from rag_autopsy.evaluation import (
+        resolve_ground_truth,
+    )
+    from rag_autopsy.generation.grounded import (
+        GroundedGenerator,
+    )
+    from rag_autopsy.generation.openai_llm import (
+        OpenAIResponsesLLM,
+    )
+    from rag_autopsy.retrieval import (
+        PgVectorRetriever,
+    )
+
+    questions = load_benchmark_questions()
+
+    item = next(
+        (
+            question
+            for question in questions
+            if question["question_id"]
+            == question_id
+        ),
+        None,
+    )
+
+    if item is None:
+        raise ValueError(
+            f"Unknown benchmark question ID: {question_id}"
+        )
+
+    chunks = load_benchmark_chunks()
+
+    if item.get(
+        "answerable",
+        True,
+    ):
+        ground_truth = resolve_ground_truth(
+            chunks=chunks,
+            evidence_text=item[
+                "evidence_text"
+            ],
+        )
+
+        relevant_chunk_ids = list(
+            ground_truth.relevant_chunk_ids
+        )
+    else:
+        relevant_chunk_ids = []
+
+    database_url = os.getenv(
+        "RAG_AUTOPSY_DATABASE_URL",
+        "dbname=rag_autopsy",
+    )
+
+    model = os.getenv(
+        "RAG_AUTOPSY_OPENAI_MODEL",
+        "gpt-5.6",
+    )
+
+    with psycopg.connect(
+        database_url
+    ) as connection:
+        retriever = PgVectorRetriever(
+            connection=connection
+        )
+
+        llm = OpenAIResponsesLLM(
+            model=model
+        )
+
+        generator = GroundedGenerator(
+            llm=llm
+        )
+
+        report = run_rag_autopsy(
+            question=item["question"],
+            retriever=retriever,
+            generator=generator,
+            relevant_chunk_ids=(
+                relevant_chunk_ids
+            ),
+            top_k=top_k,
+        )
+
+    return format_rag_autopsy_report(
+        report
+    )
+
 def main(
     argv: list[str] | None = None,
 ) -> int:
@@ -283,13 +393,25 @@ def main(
 
     if args.command == "autopsy":
         if args.question_id:
-            print(
-                run_benchmark_retrieval(
+            if args.generate:
+                output = run_benchmark_autopsy(
                     question_id=args.question_id,
                     top_k=args.top_k,
                 )
-            )
+            else:
+                output = run_benchmark_retrieval(
+                    question_id=args.question_id,
+                    top_k=args.top_k,
+                )
+
+            print(output)
         else:
+            if args.generate:
+                parser.error(
+                    "--generate currently requires "
+                    "--question-id"
+                )
+
             print(
                 f"Question: {args.question}"
             )
