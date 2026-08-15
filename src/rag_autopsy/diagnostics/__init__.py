@@ -22,6 +22,7 @@ from .citation_support import (
     CitationSupportDiagnosisType,
     diagnose_citation_support,
 )
+from .formatter import format_rag_autopsy_report
 from .report import (
     RAGAutopsyReport,
     run_rag_autopsy,
@@ -50,6 +51,7 @@ __all__ = [
     "diagnose_context",
     "diagnose_rag_verdict",
     "diagnose_retrieval",
+    "format_rag_autopsy_report",
     "run_rag_autopsy",
 ]
 
