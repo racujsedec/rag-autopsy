@@ -203,3 +203,35 @@ def test_autopsy_endpoint_unknown_question_id_returns_404() -> None:
     assert response.json() == {
         "detail": "Unknown benchmark question ID: q999"
     }
+
+
+def test_autopsy_endpoint_external_failure_returns_503(
+    monkeypatch,
+) -> None:
+    def fail_retrieval(
+        question_id: str,
+        top_k: int,
+    ):
+        raise RuntimeError(
+            "database connection failed"
+        )
+
+    monkeypatch.setattr(
+        api_module,
+        "run_benchmark_retrieval_data",
+        fail_retrieval,
+    )
+
+    response = client.post(
+        "/autopsy",
+        json={
+            "question_id": "q031",
+            "generate": False,
+            "top_k": 3,
+        },
+    )
+
+    assert response.status_code == 503
+    assert response.json() == {
+        "detail": "RAG Autopsy service is temporarily unavailable."
+    }

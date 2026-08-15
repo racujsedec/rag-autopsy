@@ -324,3 +324,11 @@ def autopsy(
             status_code=404,
             detail=str(exc),
         ) from exc
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "RAG Autopsy service is "
+                "temporarily unavailable."
+            ),
+        ) from exc
