@@ -1,10 +1,13 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import TYPE_CHECKING
 
 from .autopsy import DiagnosisType
 from .citation import CitationDiagnosisType
 from .citation_support import CitationSupportDiagnosisType
-from .report import RAGAutopsyReport
+
+if TYPE_CHECKING:
+    from .report import RAGAutopsyReport
 
 
 class RAGVerdictType(str, Enum):
@@ -22,10 +25,12 @@ class RAGVerdictResult:
     explanation: str
 
 
-def diagnose_rag_verdict(
-    report: RAGAutopsyReport,
+def diagnose_rag_stages(
+    retrieval,
+    citations,
+    citation_support,
 ) -> RAGVerdictResult:
-    if report.retrieval.diagnosis == DiagnosisType.RETRIEVAL_MISS:
+    if retrieval.diagnosis == DiagnosisType.RETRIEVAL_MISS:
         return RAGVerdictResult(
             diagnosis=RAGVerdictType.RETRIEVAL_MISS,
             explanation=(
@@ -34,7 +39,7 @@ def diagnose_rag_verdict(
             ),
         )
 
-    if report.retrieval.diagnosis == DiagnosisType.RANKING_FAILURE:
+    if retrieval.diagnosis == DiagnosisType.RANKING_FAILURE:
         return RAGVerdictResult(
             diagnosis=RAGVerdictType.RANKING_FAILURE,
             explanation=(
@@ -44,7 +49,7 @@ def diagnose_rag_verdict(
         )
 
     if (
-        report.citations.diagnosis
+        citations.diagnosis
         == CitationDiagnosisType.INVALID_CITATION
     ):
         return RAGVerdictResult(
@@ -56,7 +61,7 @@ def diagnose_rag_verdict(
         )
 
     if (
-        report.citation_support.diagnosis
+        citation_support.diagnosis
         == CitationSupportDiagnosisType.LOW_TEXTUAL_SUPPORT
     ):
         return RAGVerdictResult(
@@ -68,7 +73,7 @@ def diagnose_rag_verdict(
         )
 
     if (
-        report.citations.diagnosis
+        citations.diagnosis
         == CitationDiagnosisType.NO_CITATION
     ):
         return RAGVerdictResult(
@@ -85,4 +90,14 @@ def diagnose_rag_verdict(
             "Retrieval succeeded and the generated answer used "
             "valid citations with sufficient textual support."
         ),
+    )
+
+
+def diagnose_rag_verdict(
+    report: "RAGAutopsyReport",
+) -> RAGVerdictResult:
+    return diagnose_rag_stages(
+        retrieval=report.retrieval,
+        citations=report.citations,
+        citation_support=report.citation_support,
     )

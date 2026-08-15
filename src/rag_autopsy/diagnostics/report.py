@@ -18,6 +18,10 @@ from .citation_support import (
     CitationSupportAutopsyResult,
     diagnose_citation_support,
 )
+from .verdict import (
+    RAGVerdictResult,
+    diagnose_rag_stages,
+)
 
 
 @dataclass(frozen=True)
@@ -28,6 +32,7 @@ class RAGAutopsyReport:
     generation: GroundedGenerationResult
     citations: CitationAutopsyResult
     citation_support: CitationSupportAutopsyResult
+    verdict: RAGVerdictResult
 
 
 def run_rag_autopsy(
@@ -63,6 +68,12 @@ def run_rag_autopsy(
         )
     )
 
+    verdict = diagnose_rag_stages(
+        retrieval=retrieval_diagnosis,
+        citations=citation_diagnosis,
+        citation_support=citation_support_diagnosis,
+    )
+
     return RAGAutopsyReport(
         question=question,
         retrieval_results=tuple(
@@ -74,4 +85,5 @@ def run_rag_autopsy(
         citation_support=(
             citation_support_diagnosis
         ),
+        verdict=verdict,
     )

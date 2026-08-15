@@ -3,6 +3,7 @@ from rag_autopsy.diagnostics import (
     CitationDiagnosisType,
     CitationSupportDiagnosisType,
     DiagnosisType,
+    RAGVerdictType,
     run_rag_autopsy,
 )
 from rag_autopsy.generation import GroundedGenerator
@@ -191,4 +192,39 @@ def test_report_retains_retrieved_results() -> None:
         report.retrieval_results[0]
         .chunk.chunk_id
         == "doc::paragraph-0001"
+    )
+
+
+def test_report_includes_primary_verdict() -> None:
+    retrieval_results = [
+        make_result(
+            "doc::paragraph-0001",
+            (
+                "Reopen rates declined over "
+                "the next two reporting periods."
+            ),
+        )
+    ]
+
+    report = run_rag_autopsy(
+        question="What happened?",
+        retriever=FakeRetriever(
+            retrieval_results
+        ),
+        generator=GroundedGenerator(
+            llm=FakeLLM(
+
+                    "Reopen rates declined "
+                    "[doc::paragraph-0001]."
+
+            )
+        ),
+        relevant_chunk_ids=[
+            "doc::paragraph-0001",
+        ],
+    )
+
+    assert (
+        report.verdict.diagnosis
+        == RAGVerdictType.SUCCESS
     )
