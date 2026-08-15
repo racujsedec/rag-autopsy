@@ -22,6 +22,10 @@ from .citation_support import (
     CitationSupportDiagnosisType,
     diagnose_citation_support,
 )
+from .report import (
+    RAGAutopsyReport,
+    run_rag_autopsy,
+)
 
 __all__ = [
     "AutopsyResult",
@@ -34,6 +38,7 @@ __all__ = [
     "ContextAutopsyResult",
     "ContextDiagnosisType",
     "DiagnosisType",
+    "RAGAutopsyReport",
     "StageComparisonResult",
     "StageComparisonType",
     "compare_reranking_stages",
@@ -42,4 +47,5 @@ __all__ = [
     "diagnose_citations",
     "diagnose_context",
     "diagnose_retrieval",
+    "run_rag_autopsy",
 ]
