@@ -83,8 +83,16 @@ def test_autopsy_help_lists_question_option(
 
 
 def test_autopsy_command_accepts_question_id(
+    monkeypatch,
     capsys,
 ) -> None:
+    monkeypatch.setattr(
+        "rag_autopsy.cli.run_benchmark_retrieval",
+        lambda question_id, top_k: (
+            f"Question ID: {question_id}"
+        ),
+    )
+
     exit_code = main(
         [
             "autopsy",
@@ -105,3 +113,50 @@ def test_autopsy_requires_question_or_question_id() -> None:
         main(["autopsy"])
 
     assert exc_info.value.code == 2
+
+
+def test_question_id_dispatches_to_benchmark_retrieval(
+    monkeypatch,
+    capsys,
+) -> None:
+    calls = []
+
+    def fake_run_benchmark_retrieval(
+        question_id,
+        top_k,
+    ):
+        calls.append(
+            (
+                question_id,
+                top_k,
+            )
+        )
+        return "BENCHMARK RETRIEVAL COMPLETE"
+
+    monkeypatch.setattr(
+        "rag_autopsy.cli.run_benchmark_retrieval",
+        fake_run_benchmark_retrieval,
+        raising=False,
+    )
+
+    exit_code = main(
+        [
+            "autopsy",
+            "--question-id",
+            "q031",
+            "--top-k",
+            "5",
+        ]
+    )
+
+    assert exit_code == 0
+    assert calls == [
+        (
+            "q031",
+            5,
+        )
+    ]
+
+    output = capsys.readouterr().out
+
+    assert "BENCHMARK RETRIEVAL COMPLETE" in output

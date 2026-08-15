@@ -1,4 +1,7 @@
 import argparse
+import json
+import os
+from pathlib import Path
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,6 +47,133 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def load_benchmark_chunks():
+    from rag_autopsy.chunking import ParagraphChunker
+
+    chunker = ParagraphChunker(
+        max_words=120
+    )
+
+    chunks = []
+
+    for path in sorted(
+        Path("data/raw").glob("*.txt")
+    ):
+        chunks.extend(
+            chunker.chunk(
+                document_id=path.stem,
+                text=path.read_text(),
+            )
+        )
+
+    return chunks
+
+
+def load_benchmark_questions():
+    return json.loads(
+        Path(
+            "data/evaluation/questions.json"
+        ).read_text()
+    )
+
+
+def run_benchmark_retrieval(
+    question_id: str,
+    top_k: int,
+) -> str:
+    import psycopg
+
+    from rag_autopsy.evaluation import (
+        resolve_ground_truth,
+    )
+    from rag_autopsy.retrieval import (
+        PgVectorRetriever,
+    )
+
+    questions = load_benchmark_questions()
+
+    item = next(
+        (
+            question
+            for question in questions
+            if question["question_id"]
+            == question_id
+        ),
+        None,
+    )
+
+    if item is None:
+        raise ValueError(
+            f"Unknown benchmark question ID: {question_id}"
+        )
+
+    chunks = load_benchmark_chunks()
+
+    if item.get(
+        "answerable",
+        True,
+    ):
+        ground_truth = resolve_ground_truth(
+            chunks=chunks,
+            evidence_text=item[
+                "evidence_text"
+            ],
+        )
+
+        relevant_chunk_ids = (
+            ground_truth.relevant_chunk_ids
+        )
+    else:
+        relevant_chunk_ids = ()
+
+    database_url = os.getenv(
+        "RAG_AUTOPSY_DATABASE_URL",
+        "dbname=rag_autopsy",
+    )
+
+    with psycopg.connect(
+        database_url
+    ) as connection:
+        retriever = PgVectorRetriever(
+            connection=connection
+        )
+
+        results = retriever.search(
+            item["question"],
+            top_k=top_k,
+        )
+
+    lines = [
+        f"Question ID: {question_id}",
+        f"Question: {item['question']}",
+        "Relevant chunks: "
+        + (
+            ", ".join(
+                relevant_chunk_ids
+            )
+            if relevant_chunk_ids
+            else "None"
+        ),
+        "",
+        "Retrieved chunks:",
+    ]
+
+    if not results:
+        lines.append("None")
+    else:
+        for rank, result in enumerate(
+            results,
+            start=1,
+        ):
+            lines.append(
+                f"{rank}. "
+                f"{result.chunk.chunk_id} "
+                f"| score={result.score:.4f}"
+            )
+
+    return "\n".join(lines)
+
+
 def main(
     argv: list[str] | None = None,
 ) -> int:
@@ -58,16 +188,18 @@ def main(
     if args.command == "autopsy":
         if args.question_id:
             print(
-                f"Question ID: {args.question_id}"
+                run_benchmark_retrieval(
+                    question_id=args.question_id,
+                    top_k=args.top_k,
+                )
             )
         else:
             print(
                 f"Question: {args.question}"
             )
-
-        print(
-            f"Top-k: {args.top_k}"
-        )
+            print(
+                f"Top-k: {args.top_k}"
+            )
 
         return 0
 
