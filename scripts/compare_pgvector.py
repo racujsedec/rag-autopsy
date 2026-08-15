@@ -4,7 +4,7 @@ from pathlib import Path
 
 import psycopg
 
-from rag_autopsy.chunking import ParagraphChunker
+from rag_autopsy.chunking import ParagraphChunker, PreviousChunkContextEnricher
 from rag_autopsy.evaluation import (
     recall_at_k,
     reciprocal_rank,
@@ -124,6 +124,12 @@ def main():
     chunks = load_chunks()
     questions = load_questions()
 
+    contextual_chunks = (
+        PreviousChunkContextEnricher().enrich(
+            chunks
+        )
+    )
+
     database_url = os.getenv(
         "RAG_AUTOPSY_DATABASE_URL",
         "dbname=rag_autopsy",
@@ -134,7 +140,7 @@ def main():
     )
 
     semantic = SemanticRetriever(
-        chunks
+        contextual_chunks
     )
 
     with psycopg.connect(
@@ -189,7 +195,7 @@ def main():
     print("-" * 69)
 
     print(
-        f"{'In-memory semantic':<24}"
+        f"{'In-memory contextual':<24}"
         f"{semantic_metrics['recall@1']:<15.1%}"
         f"{semantic_metrics['recall@3']:<15.1%}"
         f"{semantic_metrics['mrr']:<15.3f}"

@@ -5,7 +5,7 @@ from rag_autopsy.chunking import Chunk
 
 
 class PgVectorIndexer:
-    """Persist chunk embeddings in PostgreSQL with pgvector."""
+    """Persist canonical chunks and retrieval embeddings in pgvector."""
 
     def __init__(
         self,
@@ -28,34 +28,70 @@ class PgVectorIndexer:
     def upsert_chunks(
         self,
         chunks: list[Chunk],
+        retrieval_chunks: list[Chunk] | None = None,
     ) -> int:
         if not chunks:
             return 0
 
-        texts = [
-            chunk.text
+        if retrieval_chunks is None:
+            retrieval_chunks = chunks
+
+        canonical_ids = [
+            chunk.chunk_id
             for chunk in chunks
         ]
 
-        embeddings = (
-            self.model.encode_document(
-                texts,
-                convert_to_numpy=True,
-                normalize_embeddings=True,
+        retrieval_ids = [
+            chunk.chunk_id
+            for chunk in retrieval_chunks
+        ]
+
+        if (
+            len(canonical_ids) != len(retrieval_ids)
+            or set(canonical_ids) != set(retrieval_ids)
+        ):
+            raise ValueError(
+                "retrieval chunk ids must match canonical chunk ids"
             )
+
+        retrieval_by_id = {
+            chunk.chunk_id: chunk
+            for chunk in retrieval_chunks
+        }
+
+        ordered_retrieval_chunks = [
+            retrieval_by_id[chunk.chunk_id]
+            for chunk in chunks
+        ]
+
+        retrieval_texts = [
+            chunk.text
+            for chunk in ordered_retrieval_chunks
+        ]
+
+        embeddings = self.model.encode_document(
+            retrieval_texts,
+            convert_to_numpy=True,
+            normalize_embeddings=True,
         )
 
         rows = [
             (
-                chunk.chunk_id,
-                chunk.document_id,
-                chunk.text,
-                chunk.start_word,
-                chunk.end_word,
+                canonical_chunk.chunk_id,
+                canonical_chunk.document_id,
+                canonical_chunk.text,
+                retrieval_chunk.text,
+                canonical_chunk.start_word,
+                canonical_chunk.end_word,
                 embedding,
             )
-            for chunk, embedding in zip(
+            for (
+                canonical_chunk,
+                retrieval_chunk,
+                embedding,
+            ) in zip(
                 chunks,
+                ordered_retrieval_chunks,
                 embeddings,
                 strict=True,
             )
@@ -68,11 +104,13 @@ class PgVectorIndexer:
                     chunk_id,
                     document_id,
                     text,
+                    retrieval_text,
                     start_word,
                     end_word,
                     embedding
                 )
                 VALUES (
+                    %s,
                     %s,
                     %s,
                     %s,
@@ -84,6 +122,7 @@ class PgVectorIndexer:
                 DO UPDATE SET
                     document_id = EXCLUDED.document_id,
                     text = EXCLUDED.text,
+                    retrieval_text = EXCLUDED.retrieval_text,
                     start_word = EXCLUDED.start_word,
                     end_word = EXCLUDED.end_word,
                     embedding = EXCLUDED.embedding

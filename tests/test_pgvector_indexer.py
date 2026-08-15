@@ -1,3 +1,5 @@
+import pytest
+
 import rag_autopsy.indexing.pgvector as pgvector_module
 from rag_autopsy.chunking import Chunk
 from rag_autopsy.indexing import PgVectorIndexer
@@ -153,8 +155,9 @@ def test_upsert_chunks_writes_expected_rows(
     assert rows[0][0] == "doc::paragraph-0000"
     assert rows[0][1] == "doc"
     assert rows[0][2] == "First paragraph."
-    assert rows[0][3] == 0
-    assert rows[0][4] == 5
+    assert rows[0][3] == "First paragraph."
+    assert rows[0][4] == 0
+    assert rows[0][5] == 5
 
 
 def test_empty_chunk_list_does_nothing(
@@ -176,3 +179,87 @@ def test_empty_chunk_list_does_nothing(
     assert model.calls == []
     assert connection.cursor_instance.rows is None
     assert connection.commit_count == 0
+
+
+def test_separate_retrieval_chunks_are_used_for_embeddings(
+    monkeypatch,
+) -> None:
+    disable_vector_registration(monkeypatch)
+
+    model = FakeModel()
+    connection = FakeConnection()
+
+    canonical = [
+        make_chunk(
+            "doc::paragraph-0001",
+            "Canonical answer paragraph.",
+        )
+    ]
+
+    retrieval = [
+        make_chunk(
+            "doc::paragraph-0001",
+            "Previous context. Canonical answer paragraph.",
+        )
+    ]
+
+    indexer = PgVectorIndexer(
+        connection=connection,
+        model=model,
+    )
+
+    indexer.upsert_chunks(
+        canonical,
+        retrieval_chunks=retrieval,
+    )
+
+    assert model.calls == [
+        (
+            [
+                "Previous context. Canonical answer paragraph.",
+            ],
+            True,
+            True,
+        )
+    ]
+
+    row = connection.cursor_instance.rows[0]
+
+    assert row[2] == "Canonical answer paragraph."
+    assert row[3] == (
+        "Previous context. Canonical answer paragraph."
+    )
+
+
+def test_retrieval_chunk_ids_must_match_canonical_chunks(
+    monkeypatch,
+) -> None:
+    disable_vector_registration(monkeypatch)
+
+    indexer = PgVectorIndexer(
+        connection=FakeConnection(),
+        model=FakeModel(),
+    )
+
+    canonical = [
+        make_chunk(
+            "doc::paragraph-0000",
+            "Canonical text.",
+        )
+    ]
+
+    retrieval = [
+        make_chunk(
+            "doc::paragraph-9999",
+            "Wrong retrieval chunk.",
+        )
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="retrieval chunk ids must match canonical chunk ids",
+    ):
+        indexer.upsert_chunks(
+            canonical,
+            retrieval_chunks=retrieval,
+        )

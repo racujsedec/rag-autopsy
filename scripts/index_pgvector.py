@@ -3,7 +3,7 @@ from pathlib import Path
 
 import psycopg
 
-from rag_autopsy.chunking import ParagraphChunker
+from rag_autopsy.chunking import ParagraphChunker, PreviousChunkContextEnricher
 from rag_autopsy.indexing import PgVectorIndexer
 
 
@@ -35,6 +35,12 @@ def main():
 
     chunks = load_chunks()
 
+    retrieval_chunks = (
+        PreviousChunkContextEnricher().enrich(
+            chunks
+        )
+    )
+
     print(
         f"Loaded {len(chunks)} paragraph chunks."
     )
@@ -47,7 +53,8 @@ def main():
         )
 
         count = indexer.upsert_chunks(
-            chunks
+            chunks,
+            retrieval_chunks=retrieval_chunks,
         )
 
     print(
